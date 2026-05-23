@@ -9,14 +9,16 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
-const links: { to: "/admin" | "/admin/races" | "/admin/candidates" | "/admin/issues" | "/admin/sources" | "/admin/position-claims"; label: string; exact?: boolean }[] = [
+const links: { to: "/admin" | "/admin/races" | "/admin/candidates" | "/admin/issues" | "/admin/sources" | "/admin/position-claims" | "/admin/extractor"; label: string; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
+  { to: "/admin/extractor", label: "AI Extractor" },
   { to: "/admin/races", label: "Races" },
   { to: "/admin/candidates", label: "Candidates" },
   { to: "/admin/issues", label: "Issues" },
   { to: "/admin/sources", label: "Sources" },
   { to: "/admin/position-claims", label: "Position Claims" },
 ];
+
 
 function AdminLayout() {
   const { user, isAdmin, loading } = useAuth();
