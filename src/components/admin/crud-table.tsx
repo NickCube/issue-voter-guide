@@ -93,9 +93,12 @@ export function CrudTable({
 
   const upsert = useMutation({
     mutationFn: async (payload: Record<string, unknown>) => {
+      const client = supabase.from(table as never);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const op = editing
-        ? supabase.from(table as never).update(payload).eq("id", editing.id)
-        : supabase.from(table as never).insert(payload);
+        ? (client as any).update(payload).eq("id", editing.id)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        : (client as any).insert(payload);
       const { error } = await op;
       if (error) throw error;
     },
