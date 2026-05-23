@@ -27,23 +27,33 @@ function Login() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const fn = mode === "signin" ? supabase.auth.signInWithPassword : supabase.auth.signUp;
-    const { error } = await fn({
-      email,
-      password,
-      ...(mode === "signup"
-        ? { options: { emailRedirectTo: `${window.location.origin}/admin` } }
-        : {}),
-    });
+    const { error } =
+      mode === "signin"
+        ? await supabase.auth.signInWithPassword({ email, password })
+        : await supabase.auth.signUp({
+            email,
+            password,
+            options: { emailRedirectTo: `${window.location.origin}/admin` },
+          });
     setLoading(false);
     if (error) return toast.error(error.message);
     if (mode === "signup") {
-      toast.success("Account created. Check your email to confirm, then sign in.");
-      setMode("signin");
+      toast.success("Account created. Signing you in…");
+      const { error: signInErr } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInErr) {
+        toast.message("Check your email to confirm, then sign in.");
+        setMode("signin");
+      } else {
+        navigate({ to: "/admin" });
+      }
     } else {
       navigate({ to: "/admin" });
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background">
