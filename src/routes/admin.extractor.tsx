@@ -238,7 +238,7 @@ function ExtractorPage() {
         <div className="mt-6 rounded-xl border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-xl font-semibold">Draft (review before saving)</h2>
-            <ConfidenceBadge confidence={result.confidence} />
+            <ConfidenceBadge value={result.confidence} />
           </div>
 
           {!result.found && (
