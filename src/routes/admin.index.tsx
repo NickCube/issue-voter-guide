@@ -11,21 +11,22 @@ function AdminDashboard() {
   const { data } = useQuery({
     queryKey: ["admin-stats"],
     queryFn: async () => {
-      const tables = ["races", "candidates", "issues", "sources"] as const;
-      const counts: Record<string, number> = {};
-      for (const t of tables) {
-        const { count } = await supabase.from(t).select("*", { count: "exact", head: true });
-        counts[t] = count ?? 0;
-      }
-      const { count: approved } = await supabase
-        .from("position_claims")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "Approved");
-      const { count: draft } = await supabase
-        .from("position_claims")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "Draft");
-      return { ...counts, approved: approved ?? 0, draft: draft ?? 0 };
+      const [races, candidates, issues, sources, approved, draft] = await Promise.all([
+        supabase.from("races").select("*", { count: "exact", head: true }),
+        supabase.from("candidates").select("*", { count: "exact", head: true }),
+        supabase.from("issues").select("*", { count: "exact", head: true }),
+        supabase.from("sources").select("*", { count: "exact", head: true }),
+        supabase.from("position_claims").select("*", { count: "exact", head: true }).eq("status", "Approved"),
+        supabase.from("position_claims").select("*", { count: "exact", head: true }).eq("status", "Draft"),
+      ]);
+      return {
+        races: races.count ?? 0,
+        candidates: candidates.count ?? 0,
+        issues: issues.count ?? 0,
+        sources: sources.count ?? 0,
+        approved: approved.count ?? 0,
+        draft: draft.count ?? 0,
+      };
     },
   });
 
