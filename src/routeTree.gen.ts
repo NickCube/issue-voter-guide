@@ -9,38 +9,121 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
+import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
+import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
 
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
+  id: '/races/$raceId',
+  path: '/races/$raceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
+  id: '/candidates/$candidateId',
+  path: '/candidates/$candidateId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RacesRaceIdIssuesIssueIdRoute =
+  RacesRaceIdIssuesIssueIdRouteImport.update({
+    id: '/issues/$issueId',
+    path: '/issues/$issueId',
+    getParentRoute: () => RacesRaceIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/methodology'
+    | '/candidates/$candidateId'
+    | '/races/$raceId'
+    | '/races/$raceId/issues/$issueId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/methodology'
+    | '/candidates/$candidateId'
+    | '/races/$raceId'
+    | '/races/$raceId/issues/$issueId'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/methodology'
+    | '/candidates/$candidateId'
+    | '/races/$raceId'
+    | '/races/$raceId/issues/$issueId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
+  MethodologyRoute: typeof MethodologyRoute
+  CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
+  RacesRaceIdRoute: typeof RacesRaceIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +131,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/races/$raceId': {
+      id: '/races/$raceId'
+      path: '/races/$raceId'
+      fullPath: '/races/$raceId'
+      preLoaderRoute: typeof RacesRaceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidates/$candidateId': {
+      id: '/candidates/$candidateId'
+      path: '/candidates/$candidateId'
+      fullPath: '/candidates/$candidateId'
+      preLoaderRoute: typeof CandidatesCandidateIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/races/$raceId/issues/$issueId': {
+      id: '/races/$raceId/issues/$issueId'
+      path: '/issues/$issueId'
+      fullPath: '/races/$raceId/issues/$issueId'
+      preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
+      parentRoute: typeof RacesRaceIdRoute
+    }
   }
 }
 
+interface RacesRaceIdRouteChildren {
+  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
+}
+
+const RacesRaceIdRouteChildren: RacesRaceIdRouteChildren = {
+  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
+}
+
+const RacesRaceIdRouteWithChildren = RacesRaceIdRoute._addFileChildren(
+  RacesRaceIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
+  MethodologyRoute: MethodologyRoute,
+  CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
+  RacesRaceIdRoute: RacesRaceIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
