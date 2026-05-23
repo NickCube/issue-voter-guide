@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
 import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
 import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
@@ -26,10 +28,20 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
 } as any)
 const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
   id: '/races/$raceId',
@@ -50,10 +62,12 @@ const RacesRaceIdIssuesIssueIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
   '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesByTo {
@@ -62,25 +76,30 @@ export interface FileRoutesByTo {
   '/methodology': typeof MethodologyRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
   '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/admin': typeof AdminIndexRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
   '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/login'
     | '/methodology'
     | '/candidates/$candidateId'
     | '/races/$raceId'
+    | '/admin/'
     | '/races/$raceId/issues/$issueId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -89,19 +108,23 @@ export interface FileRouteTypes {
     | '/methodology'
     | '/candidates/$candidateId'
     | '/races/$raceId'
+    | '/admin'
     | '/races/$raceId/issues/$issueId'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/login'
     | '/methodology'
     | '/candidates/$candidateId'
     | '/races/$raceId'
+    | '/admin/'
     | '/races/$raceId/issues/$issueId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
@@ -124,12 +147,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/races/$raceId': {
       id: '/races/$raceId'
@@ -155,6 +192,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface RacesRaceIdRouteChildren {
   RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
 }
@@ -169,6 +216,7 @@ const RacesRaceIdRouteWithChildren = RacesRaceIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
