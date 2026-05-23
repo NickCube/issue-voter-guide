@@ -9,38 +9,211 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
+import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
+import { Route as AdminSourcesRouteImport } from './routes/admin.sources'
+import { Route as AdminRacesRouteImport } from './routes/admin.races'
+import { Route as AdminPositionClaimsRouteImport } from './routes/admin.position-claims'
+import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
+import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
+import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
 
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
+  id: '/races/$raceId',
+  path: '/races/$raceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
+  id: '/candidates/$candidateId',
+  path: '/candidates/$candidateId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSourcesRoute = AdminSourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRacesRoute = AdminRacesRouteImport.update({
+  id: '/races',
+  path: '/races',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPositionClaimsRoute = AdminPositionClaimsRouteImport.update({
+  id: '/position-claims',
+  path: '/position-claims',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminIssuesRoute = AdminIssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCandidatesRoute = AdminCandidatesRouteImport.update({
+  id: '/candidates',
+  path: '/candidates',
+  getParentRoute: () => AdminRoute,
+} as any)
+const RacesRaceIdIssuesIssueIdRoute =
+  RacesRaceIdIssuesIssueIdRouteImport.update({
+    id: '/issues/$issueId',
+    path: '/issues/$issueId',
+    getParentRoute: () => RacesRaceIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/admin/candidates': typeof AdminCandidatesRoute
+  '/admin/issues': typeof AdminIssuesRoute
+  '/admin/position-claims': typeof AdminPositionClaimsRoute
+  '/admin/races': typeof AdminRacesRoute
+  '/admin/sources': typeof AdminSourcesRoute
+  '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
+  '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/admin/candidates': typeof AdminCandidatesRoute
+  '/admin/issues': typeof AdminIssuesRoute
+  '/admin/position-claims': typeof AdminPositionClaimsRoute
+  '/admin/races': typeof AdminRacesRoute
+  '/admin/sources': typeof AdminSourcesRoute
+  '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/admin': typeof AdminIndexRoute
+  '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
+  '/login': typeof LoginRoute
+  '/methodology': typeof MethodologyRoute
+  '/admin/candidates': typeof AdminCandidatesRoute
+  '/admin/issues': typeof AdminIssuesRoute
+  '/admin/position-claims': typeof AdminPositionClaimsRoute
+  '/admin/races': typeof AdminRacesRoute
+  '/admin/sources': typeof AdminSourcesRoute
+  '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
+  '/admin/': typeof AdminIndexRoute
+  '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/methodology'
+    | '/admin/candidates'
+    | '/admin/issues'
+    | '/admin/position-claims'
+    | '/admin/races'
+    | '/admin/sources'
+    | '/candidates/$candidateId'
+    | '/races/$raceId'
+    | '/admin/'
+    | '/races/$raceId/issues/$issueId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/methodology'
+    | '/admin/candidates'
+    | '/admin/issues'
+    | '/admin/position-claims'
+    | '/admin/races'
+    | '/admin/sources'
+    | '/candidates/$candidateId'
+    | '/races/$raceId'
+    | '/admin'
+    | '/races/$raceId/issues/$issueId'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/methodology'
+    | '/admin/candidates'
+    | '/admin/issues'
+    | '/admin/position-claims'
+    | '/admin/races'
+    | '/admin/sources'
+    | '/candidates/$candidateId'
+    | '/races/$raceId'
+    | '/admin/'
+    | '/races/$raceId/issues/$issueId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  MethodologyRoute: typeof MethodologyRoute
+  CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
+  RacesRaceIdRoute: typeof RacesRaceIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +221,112 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/races/$raceId': {
+      id: '/races/$raceId'
+      path: '/races/$raceId'
+      fullPath: '/races/$raceId'
+      preLoaderRoute: typeof RacesRaceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidates/$candidateId': {
+      id: '/candidates/$candidateId'
+      path: '/candidates/$candidateId'
+      fullPath: '/candidates/$candidateId'
+      preLoaderRoute: typeof CandidatesCandidateIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/sources': {
+      id: '/admin/sources'
+      path: '/sources'
+      fullPath: '/admin/sources'
+      preLoaderRoute: typeof AdminSourcesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/races': {
+      id: '/admin/races'
+      path: '/races'
+      fullPath: '/admin/races'
+      preLoaderRoute: typeof AdminRacesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/position-claims': {
+      id: '/admin/position-claims'
+      path: '/position-claims'
+      fullPath: '/admin/position-claims'
+      preLoaderRoute: typeof AdminPositionClaimsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/issues': {
+      id: '/admin/issues'
+      path: '/issues'
+      fullPath: '/admin/issues'
+      preLoaderRoute: typeof AdminIssuesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/candidates': {
+      id: '/admin/candidates'
+      path: '/candidates'
+      fullPath: '/admin/candidates'
+      preLoaderRoute: typeof AdminCandidatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/races/$raceId/issues/$issueId': {
+      id: '/races/$raceId/issues/$issueId'
+      path: '/issues/$issueId'
+      fullPath: '/races/$raceId/issues/$issueId'
+      preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
+      parentRoute: typeof RacesRaceIdRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminCandidatesRoute: typeof AdminCandidatesRoute
+  AdminIssuesRoute: typeof AdminIssuesRoute
+  AdminPositionClaimsRoute: typeof AdminPositionClaimsRoute
+  AdminRacesRoute: typeof AdminRacesRoute
+  AdminSourcesRoute: typeof AdminSourcesRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminCandidatesRoute: AdminCandidatesRoute,
+  AdminIssuesRoute: AdminIssuesRoute,
+  AdminPositionClaimsRoute: AdminPositionClaimsRoute,
+  AdminRacesRoute: AdminRacesRoute,
+  AdminSourcesRoute: AdminSourcesRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface RacesRaceIdRouteChildren {
+  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
+}
+
+const RacesRaceIdRouteChildren: RacesRaceIdRouteChildren = {
+  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
+}
+
+const RacesRaceIdRouteWithChildren = RacesRaceIdRoute._addFileChildren(
+  RacesRaceIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
+  LoginRoute: LoginRoute,
+  MethodologyRoute: MethodologyRoute,
+  CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
+  RacesRaceIdRoute: RacesRaceIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
