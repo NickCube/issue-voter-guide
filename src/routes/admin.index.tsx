@@ -63,15 +63,19 @@ function AdminDashboard() {
         ))}
       </div>
 
-      <div className="mt-10 rounded-xl border border-dashed bg-muted/30 p-6">
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <Sparkles className="h-4 w-4" /> AI Source Extractor — Coming Soon
+      <Link
+        to="/admin/extractor"
+        className="mt-10 block rounded-xl border border-primary/30 bg-primary/5 p-6 transition-colors hover:bg-primary/10"
+      >
+        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <Sparkles className="h-4 w-4" /> AI Source Extractor
         </div>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Paste candidate source text and generate draft issue-position claims for human
-          review. This feature is not yet available.
+          Paste a candidate URL or article text and generate a draft issue-position
+          claim for human review. Nothing is published until you approve it.
         </p>
-      </div>
+      </Link>
+
     </div>
   );
 }
