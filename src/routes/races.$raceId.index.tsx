@@ -70,8 +70,18 @@ function RaceDetail() {
                 >
                   ← All races
                 </Link>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {isPrimary && (
+                    <span className="inline-flex items-center rounded-full bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-foreground shadow-sm">
+                      Primary Election
+                    </span>
+                  )}
+                  <span className="inline-flex items-center rounded-full border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+                    Only registered party members can vote
+                  </span>
+                </div>
                 <h1 className="mt-4 font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-                  {data.race.name}
+                  {data.race.name.replace(/\s*—\s*/g, " — ")}
                 </h1>
                 <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted-foreground">
                   {data.race.location && (
