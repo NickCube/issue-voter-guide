@@ -15,7 +15,22 @@ export const Route = createFileRoute("/admin/import")({
   component: ImportPage,
 });
 
-type Preview = Awaited<ReturnType<typeof importFromBallotpedia>>["preview"];
+type Preview = {
+  url: string;
+  race: {
+    name: string;
+    location?: string | null;
+    election_date?: string | null;
+    office_description?: string | null;
+  };
+  candidates: Array<{
+    name: string;
+    party_or_affiliation?: string | null;
+    website_url?: string | null;
+    bio?: string | null;
+  }>;
+  issues: Array<{ name: string; description?: string | null }>;
+};
 
 function ImportPage() {
   const importFn = useServerFn(importFromBallotpedia);
