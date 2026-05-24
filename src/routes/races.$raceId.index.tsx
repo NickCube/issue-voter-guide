@@ -99,8 +99,8 @@ function RaceDetail() {
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Compare by issue
                   </h2>
-                  <span className="text-xs text-muted-foreground">
-                    Tap an issue to see each candidate&apos;s stance side-by-side
+                  <span className="hidden text-xs text-muted-foreground sm:block">
+                    Tap an issue to compare candidates side-by-side
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
