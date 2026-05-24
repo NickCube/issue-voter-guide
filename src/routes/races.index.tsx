@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/races")({
+export const Route = createFileRoute("/races/")({
   head: () => ({
     meta: [
       { title: "Races — BallotBrief" },
