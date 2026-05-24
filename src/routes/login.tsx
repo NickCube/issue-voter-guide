@@ -71,7 +71,7 @@ function Login() {
     if (!email) return toast.error("Enter your email first.");
     setMagicLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     setMagicLoading(false);
     if (error) return toast.error(error.message);

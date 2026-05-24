@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RacesRouteImport } from './routes/races'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
@@ -25,6 +26,11 @@ import { Route as AdminExtractorRouteImport } from './routes/admin.extractor'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RacesRoute = RacesRouteImport.update({
   id: '/races',
   path: '/races',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/races': typeof RacesRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
   '/admin/issues': typeof AdminIssuesRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/races': typeof RacesRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
   '/admin/issues': typeof AdminIssuesRoute
@@ -142,6 +150,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
   '/races': typeof RacesRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
   '/admin/issues': typeof AdminIssuesRoute
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/methodology'
     | '/races'
+    | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
     | '/admin/issues'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/methodology'
     | '/races'
+    | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
     | '/admin/issues'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/methodology'
     | '/races'
+    | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
     | '/admin/issues'
@@ -212,11 +224,19 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
   RacesRoute: typeof RacesRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/races': {
       id: '/races'
       path: '/races'
@@ -375,8 +395,19 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
   RacesRoute: RacesRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
