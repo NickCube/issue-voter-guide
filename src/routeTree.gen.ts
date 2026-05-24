@@ -103,9 +103,9 @@ const RacesRaceIdIndexRoute = RacesRaceIdIndexRouteImport.update({
 } as any)
 const RacesRaceIdIssuesIssueIdRoute =
   RacesRaceIdIssuesIssueIdRouteImport.update({
-    id: '/issues/$issueId',
-    path: '/issues/$issueId',
-    getParentRoute: () => RacesRaceIdRoute,
+    id: '/races/$raceId/issues/$issueId',
+    path: '/races/$raceId/issues/$issueId',
+    getParentRoute: () => rootRouteImport,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -227,6 +227,7 @@ export interface RootRouteChildren {
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
   RacesIndexRoute: typeof RacesIndexRoute
   RacesRaceIdIndexRoute: typeof RacesRaceIdIndexRoute
+  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -338,10 +339,10 @@ declare module '@tanstack/react-router' {
     }
     '/races/$raceId/issues/$issueId': {
       id: '/races/$raceId/issues/$issueId'
-      path: '/issues/$issueId'
+      path: '/races/$raceId/issues/$issueId'
       fullPath: '/races/$raceId/issues/$issueId'
       preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
-      parentRoute: typeof RacesRaceIdRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -377,17 +378,8 @@ const rootRouteChildren: RootRouteChildren = {
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
   RacesIndexRoute: RacesIndexRoute,
   RacesRaceIdIndexRoute: RacesRaceIdIndexRoute,
+  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
