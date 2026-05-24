@@ -17,6 +17,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [magicLoading, setMagicLoading] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -52,6 +53,29 @@ function Login() {
     } else {
       navigate({ to: "/admin" });
     }
+  };
+
+  const sendMagicLink = async () => {
+    if (!email) return toast.error("Enter your email first.");
+    setMagicLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/admin` },
+    });
+    setMagicLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Check your email for a sign-in link.");
+  };
+
+  const resetPassword = async () => {
+    if (!email) return toast.error("Enter your email first.");
+    setMagicLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    setMagicLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Password reset email sent.");
   };
 
 
@@ -91,6 +115,16 @@ function Login() {
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "…" : mode === "signin" ? "Sign in" : "Create account"}
           </Button>
+          {mode === "signin" && (
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Button type="button" variant="outline" disabled={magicLoading} onClick={sendMagicLink}>
+                Email me a link
+              </Button>
+              <Button type="button" variant="ghost" disabled={magicLoading} onClick={resetPassword}>
+                Reset password
+              </Button>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
