@@ -24,13 +24,14 @@ export function useAuth() {
       setLoading(false);
       return;
     }
+    const userId = user.id;
     setLoading(true);
     let cancelled = false;
     async function checkAdmin() {
       const { data } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("role", "admin")
         .maybeSingle();
       if (!cancelled) {
