@@ -25,13 +25,25 @@ function RaceDetail() {
           .eq("race_id", raceId)
           .order("display_order"),
       ]);
+      const candidateIds = (candidates.data ?? []).map((c) => c.id);
+      const claims = candidateIds.length
+        ? await supabase
+            .from("position_claims")
+            .select("id, candidate_id, issue_id, summary, evidence_quote, confidence, issues(name, display_order)")
+            .in("candidate_id", candidateIds)
+            .eq("status", "Approved")
+        : { data: [] as any[] };
       return {
         race: race.data,
         candidates: candidates.data ?? [],
         issues: issues.data ?? [],
+        claims: (claims.data ?? []) as any[],
       };
     },
   });
+
+  const isPrimary = /primary/i.test(data?.race?.office_description ?? "") ||
+    /primary/i.test(data?.race?.name ?? "");
 
   return (
     <div className="min-h-screen bg-background">
