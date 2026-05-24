@@ -3,13 +3,21 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+  autoDiscoverAndImport,
   importFromBallotpedia,
   saveBallotpediaImport,
 } from "@/lib/ballotpedia-import.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Globe, Loader2, Download, CheckCircle2 } from "lucide-react";
+import {
+  Globe,
+  Loader2,
+  Download,
+  CheckCircle2,
+  Zap,
+  AlertCircle,
+} from "lucide-react";
 
 export const Route = createFileRoute("/admin/import")({
   component: ImportPage,
@@ -32,13 +40,49 @@ type Preview = {
   issues: Array<{ name: string; description?: string | null }>;
 };
 
+type DiscoverResult = {
+  url: string;
+  ok: boolean;
+  raceName?: string;
+  reused?: boolean;
+  candidates?: number;
+  issues?: number;
+  error?: string;
+};
+
+const DEFAULT_HUB =
+  "https://ballotpedia.org/Morris_County,_New_Jersey_elections,_2025";
+
 function ImportPage() {
   const importFn = useServerFn(importFromBallotpedia);
   const saveFn = useServerFn(saveBallotpediaImport);
+  const autoFn = useServerFn(autoDiscoverAndImport);
+
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<Preview | null>(null);
+
+  const [hubUrl, setHubUrl] = useState(DEFAULT_HUB);
+  const [autoLoading, setAutoLoading] = useState(false);
+  const [autoResults, setAutoResults] = useState<DiscoverResult[] | null>(null);
+
+  async function handleAuto() {
+    setAutoLoading(true);
+    setAutoResults(null);
+    try {
+      const res = await autoFn({ data: { hubUrl, maxRaces: 10 } });
+      setAutoResults(res.results);
+      const ok = res.results.filter((r) => r.ok).length;
+      toast.success(
+        `Imported ${ok}/${res.results.length} races from ${res.totalLinks} discovered links.`,
+      );
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Auto-import failed");
+    } finally {
+      setAutoLoading(false);
+    }
+  }
 
   async function handleImport() {
     if (!/^https?:\/\/(www\.)?ballotpedia\.org\//i.test(url)) {
@@ -86,20 +130,88 @@ function ImportPage() {
         </h1>
       </div>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Paste a Ballotpedia race page URL. We scrape it with Firecrawl, then use
-        AI to extract real race details, candidates, and issues. You review
-        before anything is saved.
-      </p>
-      <p className="mt-2 max-w-2xl text-xs text-muted-foreground">
-        Example:{" "}
-        <code className="rounded bg-muted px-1.5 py-0.5">
-          https://ballotpedia.org/Morris_County,_New_Jersey_elections,_2025
-        </code>
+        Auto-discover all races from a Ballotpedia hub page (e.g. county-wide
+        elections overview), or import a single race manually. The same job
+        runs daily from a cron schedule.
       </p>
 
+      {/* ─── Auto discover ─────────────────────────────────────── */}
       <div className="mt-6 grid gap-4 rounded-xl border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-2">
+          <Zap className="h-4 w-4 text-primary" />
+          <h2 className="font-serif text-xl font-semibold">
+            Auto-discover &amp; import
+          </h2>
+        </div>
         <div>
-          <Label>Ballotpedia URL</Label>
+          <Label>Hub URL (county / state elections overview)</Label>
+          <Input
+            value={hubUrl}
+            onChange={(e) => setHubUrl(e.target.value)}
+            placeholder={DEFAULT_HUB}
+            className="mt-1 font-mono text-xs"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Default points at Morris County NJ 2025. Change to any
+            ballotpedia.org overview page.
+          </p>
+        </div>
+        <div>
+          <Button onClick={handleAuto} disabled={autoLoading}>
+            {autoLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Discovering
+                &amp; importing…
+              </>
+            ) : (
+              <>
+                <Zap className="mr-2 h-4 w-4" /> Run now
+              </>
+            )}
+          </Button>
+        </div>
+
+        {autoResults && (
+          <ul className="mt-2 grid gap-2">
+            {autoResults.map((r, i) => (
+              <li
+                key={i}
+                className="rounded-md border bg-muted/30 p-3 text-sm"
+              >
+                <div className="flex items-start gap-2">
+                  {r.ok ? (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 text-green-600" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-4 w-4 text-destructive" />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium">
+                      {r.raceName ?? r.url.replace("https://ballotpedia.org/", "")}
+                    </div>
+                    {r.ok ? (
+                      <div className="text-xs text-muted-foreground">
+                        {r.reused ? "Updated existing race" : "Created new race"}
+                        {" • "}
+                        +{r.candidates ?? 0} candidates, +{r.issues ?? 0} issues
+                      </div>
+                    ) : (
+                      <div className="text-xs text-destructive">{r.error}</div>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* ─── Single URL import ─────────────────────────────────── */}
+      <div className="mt-6 grid gap-4 rounded-xl border bg-card p-6 shadow-sm">
+        <h2 className="font-serif text-xl font-semibold">
+          Import a single race URL
+        </h2>
+        <div>
+          <Label>Ballotpedia race URL</Label>
           <Input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
@@ -108,15 +220,14 @@ function ImportPage() {
           />
         </div>
         <div>
-          <Button onClick={handleImport} disabled={loading}>
+          <Button onClick={handleImport} disabled={loading} variant="outline">
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Scraping &
-                extracting…
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Fetching…
               </>
             ) : (
               <>
-                <Download className="mr-2 h-4 w-4" /> Fetch & preview
+                <Download className="mr-2 h-4 w-4" /> Fetch &amp; preview
               </>
             )}
           </Button>
@@ -126,7 +237,6 @@ function ImportPage() {
       {preview && (
         <div className="mt-6 grid gap-4 rounded-xl border bg-card p-6 shadow-sm">
           <h2 className="font-serif text-xl font-semibold">Preview</h2>
-
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Race
@@ -146,7 +256,6 @@ function ImportPage() {
               )}
             </div>
           </section>
-
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Candidates ({preview.candidates.length})
@@ -161,16 +270,6 @@ function ImportPage() {
                   <div className="text-xs text-muted-foreground">
                     {c.party_or_affiliation ?? "Unknown party"}
                   </div>
-                  {c.website_url && (
-                    <a
-                      href={c.website_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-1 inline-block truncate text-xs text-primary hover:underline"
-                    >
-                      {c.website_url}
-                    </a>
-                  )}
                   {c.bio && (
                     <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">
                       {c.bio}
@@ -178,14 +277,8 @@ function ImportPage() {
                   )}
                 </li>
               ))}
-              {!preview.candidates.length && (
-                <li className="text-sm text-muted-foreground">
-                  No candidates found.
-                </li>
-              )}
             </ul>
           </section>
-
           <section>
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Issues ({preview.issues.length})
@@ -195,14 +288,12 @@ function ImportPage() {
                 <span
                   key={idx}
                   className="rounded-full border bg-muted/40 px-3 py-1 text-xs"
-                  title={i.description ?? undefined}
                 >
                   {i.name}
                 </span>
               ))}
             </div>
           </section>
-
           <div className="flex gap-2 pt-2">
             <Button onClick={handleSave} disabled={saving}>
               {saving ? (
