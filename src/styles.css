@@ -132,5 +132,17 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3 { letter-spacing: -0.02em; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.025em; }
+}
+
+@layer utilities {
+  .font-display { font-family: var(--font-display); }
+  .bg-hero-gradient { background-image: var(--gradient-hero); }
+  .shadow-elegant { box-shadow: var(--shadow-elegant); }
+  .shadow-card { box-shadow: var(--shadow-card); }
+  .text-balance { text-wrap: balance; }
+  .grain {
+    background-image: radial-gradient(color-mix(in oklab, white 6%, transparent) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
 }
