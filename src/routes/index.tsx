@@ -13,6 +13,7 @@ import {
   MapPin,
   CalendarDays,
 } from "lucide-react";
+import { AddressFinder } from "@/components/address-finder";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -120,6 +121,9 @@ function Home() {
             </div>
           </div>
         </section>
+
+        {/* PERSONALIZED FINDER */}
+        <AddressFinder />
 
         {/* FEATURED + GRID — magazine layout */}
         <section className="border-b bg-background">

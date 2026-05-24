@@ -1,0 +1,180 @@
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { MapPin, Search, ArrowUpRight, CalendarDays, X } from "lucide-react";
+import { matchAddressToTowns, raceMatchesAddress } from "@/lib/address-match";
+
+const STORAGE_KEY = "bb.address";
+
+function fmtDate(d?: string | null) {
+  if (!d) return null;
+  return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+export function AddressFinder() {
+  const [input, setInput] = useState("");
+  const [address, setAddress] = useState<string>("");
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        setAddress(saved);
+        setInput(saved);
+      }
+    } catch {}
+  }, []);
+
+  const { data: races = [] } = useQuery({
+    queryKey: ["address-finder-races"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("races")
+        .select("id, name, location, election_date, office_description")
+        .order("election_date", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  const match = useMemo(() => matchAddressToTowns(address), [address]);
+  const filtered = useMemo(
+    () => (address ? races.filter((r) => raceMatchesAddress(r.location, match)) : []),
+    [address, races, match],
+  );
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const v = input.trim();
+    setAddress(v);
+    try {
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      else localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+  }
+
+  function clear() {
+    setInput("");
+    setAddress("");
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  }
+
+  const resolved = address && match.detectedFrom !== "none";
+  const noMatch = address && !resolved;
+
+  return (
+    <section className="border-b bg-muted/40">
+      <div className="container mx-auto max-w-6xl px-4 py-20">
+        <div className="grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <p className="font-display text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
+              Personalized
+            </p>
+            <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+              What's on <em className="italic text-primary">your</em> ballot?
+            </h2>
+            <p className="mt-5 max-w-md text-muted-foreground">
+              Enter your address, town, or ZIP and we'll surface only the races
+              you can actually vote in — local, county, and statewide.
+            </p>
+            <p className="mt-4 text-xs text-muted-foreground">
+              We don't store your address on our servers. It stays in your browser.
+            </p>
+          </div>
+
+          <div className="lg:col-span-7">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
+              <div className="relative flex-1">
+                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="e.g. Morristown, 07960, or 123 Main St, Boonton NJ"
+                  className="h-12 pl-9 pr-9 text-base"
+                  aria-label="Your address, town, or ZIP"
+                />
+                {input && (
+                  <button
+                    type="button"
+                    onClick={clear}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted"
+                    aria-label="Clear"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Button type="submit" size="lg" className="h-12">
+                <Search className="mr-1 h-4 w-4" />
+                Find my races
+              </Button>
+            </form>
+
+            {resolved && (
+              <div className="mt-6">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <p className="text-sm text-muted-foreground">
+                    Showing <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
+                    {filtered.length === 1 ? "race" : "races"} for{" "}
+                    <span className="font-semibold text-foreground">{match.display}</span>
+                    {match.countyMatch ? " · plus county & statewide" : ""}
+                  </p>
+                </div>
+
+                {filtered.length === 0 ? (
+                  <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
+                    No races found for that location yet. We currently cover Morris County, NJ.
+                  </div>
+                ) : (
+                  <ul className="grid gap-3 sm:grid-cols-2">
+                    {filtered.map((r) => (
+                      <li key={r.id}>
+                        <Link
+                          to="/races/$raceId"
+                          params={{ raceId: r.id }}
+                          className="group flex h-full flex-col justify-between rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
+                        >
+                          <div>
+                            <h3 className="font-display text-base font-semibold leading-tight">
+                              {r.name}
+                            </h3>
+                            {r.location && (
+                              <p className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" /> {r.location}
+                              </p>
+                            )}
+                          </div>
+                          <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                            {r.election_date ? (
+                              <span className="inline-flex items-center gap-1">
+                                <CalendarDays className="h-3 w-3" />
+                                {fmtDate(r.election_date)}
+                              </span>
+                            ) : <span />}
+                            <span className="inline-flex items-center gap-1 font-medium text-primary">
+                              Open
+                              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                            </span>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {noMatch && (
+              <div className="mt-6 rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
+                We couldn't recognize that address. Try a town name (e.g. "Morristown")
+                or a 5-digit ZIP code. Currently covering Morris County, NJ.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
