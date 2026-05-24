@@ -28,6 +28,7 @@ import { Route as AdminExtractorRouteImport } from './routes/admin.extractor'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as RacesRaceIdIndexRouteImport } from './routes/races.$raceId.index'
 import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
+import { Route as ApiPublicCronRefreshElectionsRouteImport } from './routes/api/public/cron/refresh-elections'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -125,6 +126,12 @@ const RacesRaceIdIssuesIssueIdRoute =
     path: '/issues/$issueId',
     getParentRoute: () => RacesRaceIdRoute,
   } as any)
+const ApiPublicCronRefreshElectionsRoute =
+  ApiPublicCronRefreshElectionsRouteImport.update({
+    id: '/api/public/cron/refresh-elections',
+    path: '/api/public/cron/refresh-elections',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/races/': typeof RacesIndexRoute
   '/races/$raceId/': typeof RacesRaceIdIndexRoute
+  '/api/public/cron/refresh-elections': typeof ApiPublicCronRefreshElectionsRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesByTo {
@@ -163,6 +171,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/races': typeof RacesIndexRoute
   '/races/$raceId': typeof RacesRaceIdIndexRoute
+  '/api/public/cron/refresh-elections': typeof ApiPublicCronRefreshElectionsRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesById {
@@ -185,6 +194,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/races/': typeof RacesIndexRoute
   '/races/$raceId/': typeof RacesRaceIdIndexRoute
+  '/api/public/cron/refresh-elections': typeof ApiPublicCronRefreshElectionsRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRouteTypes {
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/races/'
     | '/races/$raceId/'
+    | '/api/public/cron/refresh-elections'
     | '/races/$raceId/issues/$issueId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/races'
     | '/races/$raceId'
+    | '/api/public/cron/refresh-elections'
     | '/races/$raceId/issues/$issueId'
   id:
     | '__root__'
@@ -247,6 +259,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/races/'
     | '/races/$raceId/'
+    | '/api/public/cron/refresh-elections'
     | '/races/$raceId/issues/$issueId'
   fileRoutesById: FileRoutesById
 }
@@ -258,6 +271,7 @@ export interface RootRouteChildren {
   RacesRoute: typeof RacesRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
+  ApiPublicCronRefreshElectionsRoute: typeof ApiPublicCronRefreshElectionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -395,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
       parentRoute: typeof RacesRaceIdRoute
     }
+    '/api/public/cron/refresh-elections': {
+      id: '/api/public/cron/refresh-elections'
+      path: '/api/public/cron/refresh-elections'
+      fullPath: '/api/public/cron/refresh-elections'
+      preLoaderRoute: typeof ApiPublicCronRefreshElectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -456,6 +477,7 @@ const rootRouteChildren: RootRouteChildren = {
   RacesRoute: RacesRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
+  ApiPublicCronRefreshElectionsRoute: ApiPublicCronRefreshElectionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
