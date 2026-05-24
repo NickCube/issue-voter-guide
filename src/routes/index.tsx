@@ -50,8 +50,7 @@ function Home() {
               Nonpartisan · Source-backed
             </span>
             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
-              Know what candidates stand for —{" "}
-              <span className="text-primary">with receipts.</span>
+              Know what candidates stand for — <span className="text-primary">with receipts.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
               Compare candidates by issue using plain-English summaries, source links, and
@@ -75,7 +74,9 @@ function Home() {
           <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 className="text-3xl font-semibold tracking-tight">Live races</h2>
-              <p className="mt-2 text-muted-foreground">Real races already loaded with sourced positions.</p>
+              <p className="mt-2 text-muted-foreground">
+                Real races already loaded with sourced positions.
+              </p>
             </div>
             <Button asChild variant="outline">
               <Link to="/races">View all</Link>

@@ -64,11 +64,10 @@ function RacesPage() {
       <SiteHeader />
       <main className="container mx-auto max-w-6xl px-4 py-12">
         <div className="mb-8">
-          <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">
-            Races
-          </h1>
+          <h1 className="font-serif text-4xl font-semibold tracking-tight sm:text-5xl">Races</h1>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            Browse the live races already loaded with candidates, issues, and approved source-backed positions.
+            Browse the live races already loaded with candidates, issues, and approved source-backed
+            positions.
           </p>
         </div>
 
@@ -102,9 +101,13 @@ function RacesPage() {
                   </p>
                 )}
                 <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="rounded-full bg-muted px-3 py-1">{race.candidateCount} candidates</span>
+                  <span className="rounded-full bg-muted px-3 py-1">
+                    {race.candidateCount} candidates
+                  </span>
                   <span className="rounded-full bg-muted px-3 py-1">{race.issueCount} issues</span>
-                  <span className="rounded-full bg-muted px-3 py-1">{race.claimCount} sourced positions</span>
+                  <span className="rounded-full bg-muted px-3 py-1">
+                    {race.claimCount} sourced positions
+                  </span>
                 </div>
                 <Button asChild className="mt-6" size="sm">
                   <Link to="/races/$raceId" params={{ raceId: race.id }}>

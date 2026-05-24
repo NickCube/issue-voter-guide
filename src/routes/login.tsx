@@ -78,7 +78,6 @@ function Login() {
     toast.success("Password reset email sent.");
   };
 
-
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
@@ -117,7 +116,12 @@ function Login() {
           </Button>
           {mode === "signin" && (
             <div className="grid gap-2 sm:grid-cols-2">
-              <Button type="button" variant="outline" disabled={magicLoading} onClick={sendMagicLink}>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={magicLoading}
+                onClick={sendMagicLink}
+              >
                 Email me a link
               </Button>
               <Button type="button" variant="ghost" disabled={magicLoading} onClick={resetPassword}>
@@ -130,14 +134,12 @@ function Login() {
             onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
             className="block w-full text-center text-xs text-muted-foreground hover:text-foreground"
           >
-            {mode === "signin"
-              ? "Need an account? Sign up"
-              : "Already have an account? Sign in"}
+            {mode === "signin" ? "Need an account? Sign up" : "Already have an account? Sign in"}
           </button>
         </form>
         <p className="mt-4 text-xs text-muted-foreground">
-          New accounts are created without admin rights. An existing admin must grant the
-          admin role before management pages will load.
+          New accounts are created without admin rights. An existing admin must grant the admin role
+          before management pages will load.
         </p>
       </main>
       <SiteFooter />
