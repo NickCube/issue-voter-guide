@@ -21,15 +21,18 @@ export function useAuth() {
   useEffect(() => {
     if (!user) {
       setIsAdmin(false);
+      setLoading(false);
       return;
     }
+    setLoading(true);
     supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .eq("role", "admin")
       .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data));
+      .then(({ data }) => setIsAdmin(!!data))
+      .finally(() => setLoading(false));
   }, [user]);
 
   return { user, isAdmin, loading };
