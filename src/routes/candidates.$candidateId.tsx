@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ExternalLink, Globe } from "lucide-react";
+import { PartyBadge } from "@/components/party-badge";
 
 export const Route = createFileRoute("/candidates/$candidateId")({
   component: CandidateProfile,
