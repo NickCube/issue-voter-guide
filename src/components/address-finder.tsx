@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash } from "lucide-react";
+import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash, Home, Loader2 } from "lucide-react";
 import {
   matchAddressToTowns,
   raceMatchesAddress,
