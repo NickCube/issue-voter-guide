@@ -277,7 +277,7 @@ export function AddressFinder() {
                   </button>
                 )}
 
-                {open && suggestions.length > 0 && (
+                {open && (suggestions.length > 0 || searching) && (
                   <ul
                     role="listbox"
                     className="absolute left-0 right-0 top-full z-20 mt-2 max-h-80 overflow-auto rounded-xl border bg-popover p-1 shadow-elegant"
@@ -290,7 +290,7 @@ export function AddressFinder() {
                           aria-selected={i === activeIdx}
                           onMouseEnter={() => setActiveIdx(i)}
                           onMouseDown={(e) => {
-                            e.preventDefault(); // keep focus on input
+                            e.preventDefault();
                             commit(s.value);
                           }}
                           className={cn(
@@ -303,11 +303,20 @@ export function AddressFinder() {
                               "flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
                               s.kind === "zip"
                                 ? "bg-primary/10 text-primary"
+                                : s.kind === "address"
+                                ? "bg-accent/15 text-accent-foreground"
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
-                            {s.kind === "zip" ? <Hash className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
+                            {s.kind === "zip" ? (
+                              <Hash className="h-3.5 w-3.5" />
+                            ) : s.kind === "address" ? (
+                              <Home className="h-3.5 w-3.5" />
+                            ) : (
+                              <MapPin className="h-3.5 w-3.5" />
+                            )}
                           </span>
+
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm font-medium">{s.label}</span>
                             <span className="block truncate text-xs text-muted-foreground">{s.sub}</span>
