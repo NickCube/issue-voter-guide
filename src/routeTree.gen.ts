@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RacesRouteImport } from './routes/races'
 import { Route as MethodologyRouteImport } from './routes/methodology'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RacesIndexRouteImport } from './routes/races.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
 import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
 import { Route as AdminSourcesRouteImport } from './routes/admin.sources'
 import { Route as AdminRacesRouteImport } from './routes/admin.races'
@@ -29,6 +31,11 @@ import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$ra
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RacesRoute = RacesRouteImport.update({
+  id: '/races',
+  path: '/races',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodologyRoute = MethodologyRouteImport.update({
@@ -52,14 +59,19 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const RacesIndexRoute = RacesIndexRouteImport.update({
-  id: '/races/',
-  path: '/races/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => RacesRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
+  id: '/$raceId',
+  path: '/$raceId',
+  getParentRoute: () => RacesRoute,
 } as any)
 const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
   id: '/candidates/$candidateId',
@@ -97,15 +109,15 @@ const AdminCandidatesRoute = AdminCandidatesRouteImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 const RacesRaceIdIndexRoute = RacesRaceIdIndexRouteImport.update({
-  id: '/races/$raceId/',
-  path: '/races/$raceId/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => RacesRaceIdRoute,
 } as any)
 const RacesRaceIdIssuesIssueIdRoute =
   RacesRaceIdIssuesIssueIdRouteImport.update({
-    id: '/races/$raceId/issues/$issueId',
-    path: '/races/$raceId/issues/$issueId',
-    getParentRoute: () => rootRouteImport,
+    id: '/issues/$issueId',
+    path: '/issues/$issueId',
+    getParentRoute: () => RacesRaceIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -113,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
+  '/races': typeof RacesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
@@ -121,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/admin/races': typeof AdminRacesRoute
   '/admin/sources': typeof AdminSourcesRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/races/': typeof RacesIndexRoute
   '/races/$raceId/': typeof RacesRaceIdIndexRoute
@@ -149,6 +163,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/login': typeof LoginRoute
   '/methodology': typeof MethodologyRoute
+  '/races': typeof RacesRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
@@ -157,6 +172,7 @@ export interface FileRoutesById {
   '/admin/races': typeof AdminRacesRoute
   '/admin/sources': typeof AdminSourcesRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
+  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/races/': typeof RacesIndexRoute
   '/races/$raceId/': typeof RacesRaceIdIndexRoute
@@ -169,6 +185,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/login'
     | '/methodology'
+    | '/races'
     | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
@@ -177,6 +194,7 @@ export interface FileRouteTypes {
     | '/admin/races'
     | '/admin/sources'
     | '/candidates/$candidateId'
+    | '/races/$raceId'
     | '/admin/'
     | '/races/'
     | '/races/$raceId/'
@@ -204,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/login'
     | '/methodology'
+    | '/races'
     | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
@@ -212,6 +231,7 @@ export interface FileRouteTypes {
     | '/admin/races'
     | '/admin/sources'
     | '/candidates/$candidateId'
+    | '/races/$raceId'
     | '/admin/'
     | '/races/'
     | '/races/$raceId/'
@@ -223,11 +243,9 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   LoginRoute: typeof LoginRoute
   MethodologyRoute: typeof MethodologyRoute
+  RacesRoute: typeof RacesRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
-  RacesIndexRoute: typeof RacesIndexRoute
-  RacesRaceIdIndexRoute: typeof RacesRaceIdIndexRoute
-  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -237,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/races': {
+      id: '/races'
+      path: '/races'
+      fullPath: '/races'
+      preLoaderRoute: typeof RacesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methodology': {
@@ -269,10 +294,10 @@ declare module '@tanstack/react-router' {
     }
     '/races/': {
       id: '/races/'
-      path: '/races'
+      path: '/'
       fullPath: '/races/'
       preLoaderRoute: typeof RacesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RacesRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -280,6 +305,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/races/$raceId': {
+      id: '/races/$raceId'
+      path: '/$raceId'
+      fullPath: '/races/$raceId'
+      preLoaderRoute: typeof RacesRaceIdRouteImport
+      parentRoute: typeof RacesRoute
     }
     '/candidates/$candidateId': {
       id: '/candidates/$candidateId'
@@ -332,17 +364,17 @@ declare module '@tanstack/react-router' {
     }
     '/races/$raceId/': {
       id: '/races/$raceId/'
-      path: '/races/$raceId'
+      path: '/'
       fullPath: '/races/$raceId/'
       preLoaderRoute: typeof RacesRaceIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RacesRaceIdRoute
     }
     '/races/$raceId/issues/$issueId': {
       id: '/races/$raceId/issues/$issueId'
-      path: '/races/$raceId/issues/$issueId'
+      path: '/issues/$issueId'
       fullPath: '/races/$raceId/issues/$issueId'
       preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof RacesRaceIdRoute
     }
   }
 }
@@ -369,16 +401,40 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface RacesRaceIdRouteChildren {
+  RacesRaceIdIndexRoute: typeof RacesRaceIdIndexRoute
+  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
+}
+
+const RacesRaceIdRouteChildren: RacesRaceIdRouteChildren = {
+  RacesRaceIdIndexRoute: RacesRaceIdIndexRoute,
+  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
+}
+
+const RacesRaceIdRouteWithChildren = RacesRaceIdRoute._addFileChildren(
+  RacesRaceIdRouteChildren,
+)
+
+interface RacesRouteChildren {
+  RacesRaceIdRoute: typeof RacesRaceIdRouteWithChildren
+  RacesIndexRoute: typeof RacesIndexRoute
+}
+
+const RacesRouteChildren: RacesRouteChildren = {
+  RacesRaceIdRoute: RacesRaceIdRouteWithChildren,
+  RacesIndexRoute: RacesIndexRoute,
+}
+
+const RacesRouteWithChildren = RacesRoute._addFileChildren(RacesRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   LoginRoute: LoginRoute,
   MethodologyRoute: MethodologyRoute,
+  RacesRoute: RacesRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
-  RacesIndexRoute: RacesIndexRoute,
-  RacesRaceIdIndexRoute: RacesRaceIdIndexRoute,
-  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
