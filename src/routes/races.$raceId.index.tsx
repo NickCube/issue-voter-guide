@@ -86,7 +86,7 @@ function RaceDetail() {
                   <Link
                     key={i.id}
                     to="/races/$raceId/issues/$issueId"
-                    params={{ raceId: data.race.id, issueId: i.id }}
+                    params={{ raceId, issueId: i.id }}
                     className="inline-flex items-center gap-1.5 rounded-full border bg-card px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:border-primary hover:bg-accent"
                   >
                     {i.name}
