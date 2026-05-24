@@ -4,6 +4,7 @@ import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Button } from "@/components/ui/button";
+import { RacesMap } from "@/components/races-map";
 
 export const Route = createFileRoute("/races/")({
   head: () => ({
@@ -74,7 +75,11 @@ function RacesPage() {
         {isLoading ? (
           <p className="text-muted-foreground">Loading races…</p>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <>
+            <div className="mb-8">
+              <RacesMap races={races} />
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
             {races.map((race) => (
               <article key={race.id} className="rounded-xl border bg-card p-6 shadow-sm">
                 <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -116,7 +121,8 @@ function RacesPage() {
                 </Button>
               </article>
             ))}
-          </div>
+            </div>
+          </>
         )}
       </main>
       <SiteFooter />
