@@ -88,19 +88,24 @@ function Home() {
                 key={race.id}
                 to="/races/$raceId"
                 params={{ raceId: race.id }}
-                className="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+                className="group rounded-xl border bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary hover:shadow-md"
               >
                 <h3 className="font-semibold leading-tight">{race.name}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{race.location}</p>
-                {race.election_date && (
-                  <p className="mt-3 text-xs text-muted-foreground">
-                    {new Date(race.election_date).toLocaleDateString(undefined, {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                )}
+                <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                  {race.election_date && (
+                    <span>
+                      {new Date(race.election_date).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  )}
+                  <span className="inline-flex items-center gap-1 font-medium text-primary opacity-80 transition-opacity group-hover:opacity-100">
+                    Open <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
