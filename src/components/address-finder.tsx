@@ -324,6 +324,14 @@ export function AddressFinder() {
                         </button>
                       </li>
                     ))}
+                    {searching && (
+                      <li className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Searching addresses…
+                      </li>
+                    )}
+                    {!searching && suggestions.length === 0 && (
+                      <li className="px-3 py-2 text-xs text-muted-foreground">No matches</li>
+                    )}
                   </ul>
                 )}
               </div>
