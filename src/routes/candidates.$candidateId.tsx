@@ -76,7 +76,7 @@ function CandidateProfile() {
               {c.name}
             </h1>
             {c.party_or_affiliation && (
-              <p className="mt-1 text-sm text-muted-foreground">{c.party_or_affiliation}</p>
+              <div className="mt-2"><PartyBadge party={c.party_or_affiliation} /></div>
             )}
             {c.website_url && (
               <a
