@@ -122,6 +122,9 @@ function Home() {
           </div>
         </section>
 
+        {/* PERSONALIZED FINDER */}
+        <AddressFinder />
+
         {/* FEATURED + GRID — magazine layout */}
         <section className="border-b bg-background">
           <div className="container mx-auto max-w-6xl px-4 py-20">
