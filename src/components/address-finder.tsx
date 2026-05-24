@@ -1,13 +1,70 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, ArrowUpRight, CalendarDays, X } from "lucide-react";
-import { matchAddressToTowns, raceMatchesAddress } from "@/lib/address-match";
+import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash } from "lucide-react";
+import {
+  matchAddressToTowns,
+  raceMatchesAddress,
+  MORRIS_ZIP_TO_TOWN,
+} from "@/lib/address-match";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bb.address";
+
+// Canonical municipality list for autocomplete (matches what races.location uses).
+const SUGGESTION_TOWNS = [
+  "Boonton Town", "Boonton Township", "Butler Borough", "Chatham Borough",
+  "Chatham Township", "Chester Borough", "Chester Township", "Denville Township",
+  "Dover", "East Hanover Township", "Florham Park Borough", "Hanover Township",
+  "Harding Township", "Jefferson Township", "Kinnelon Borough", "Lincoln Park Borough",
+  "Long Hill Township", "Madison", "Mendham Borough", "Mendham Township",
+  "Mine Hill Township", "Montville Township", "Morris Plains Borough",
+  "Morris Township", "Morristown", "Mount Arlington Borough", "Mount Olive",
+  "Mountain Lakes", "Netcong", "Parsippany-Troy Hills", "Pequannock", "Randolph",
+  "Riverdale", "Rockaway", "Rockaway Township", "Roxbury", "Victory Gardens",
+  "Washington Township", "Wharton",
+];
+
+type Suggestion = { label: string; sub: string; value: string; kind: "town" | "zip" };
+
+function buildSuggestions(query: string): Suggestion[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+
+  // Pull out the last "token" so addresses like "123 Main St, Boon" still suggest.
+  const tail = q.split(/[,\n]/).pop()?.trim() ?? q;
+  const needle = tail.length >= 2 ? tail : q;
+  if (needle.length < 2) return [];
+
+  const results: Suggestion[] = [];
+
+  // ZIP code suggestions (numeric needle)
+  if (/^\d{2,5}$/.test(needle)) {
+    for (const [zip, town] of Object.entries(MORRIS_ZIP_TO_TOWN)) {
+      if (zip.startsWith(needle)) {
+        results.push({ label: zip, sub: `${town}, NJ`, value: zip, kind: "zip" });
+        if (results.length >= 6) break;
+      }
+    }
+  }
+
+  // Town name suggestions
+  for (const town of SUGGESTION_TOWNS) {
+    if (town.toLowerCase().includes(needle)) {
+      results.push({ label: town, sub: "Morris County, NJ", value: `${town}, NJ`, kind: "town" });
+      if (results.length >= 8) break;
+    }
+  }
+
+  // Dedupe by value
+  const seen = new Set<string>();
+  return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true))).slice(0, 8);
+}
+
+
 
 function fmtDate(d?: string | null) {
   if (!d) return null;
@@ -17,6 +74,9 @@ function fmtDate(d?: string | null) {
 export function AddressFinder() {
   const [input, setInput] = useState("");
   const [address, setAddress] = useState<string>("");
+  const [open, setOpen] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     try {
@@ -26,6 +86,15 @@ export function AddressFinder() {
         setInput(saved);
       }
     } catch {}
+  }, []);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    function onClick(e: MouseEvent) {
+      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
   const { data: races = [] } = useQuery({
@@ -39,26 +108,51 @@ export function AddressFinder() {
     },
   });
 
+  const suggestions = useMemo(() => buildSuggestions(input), [input]);
   const match = useMemo(() => matchAddressToTowns(address), [address]);
   const filtered = useMemo(
     () => (address ? races.filter((r) => raceMatchesAddress(r.location, match)) : []),
     [address, races, match],
   );
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const v = input.trim();
+  function commit(value: string) {
+    const v = value.trim();
+    setInput(v);
     setAddress(v);
+    setOpen(false);
     try {
       if (v) localStorage.setItem(STORAGE_KEY, v);
       else localStorage.removeItem(STORAGE_KEY);
     } catch {}
   }
 
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (open && suggestions[activeIdx]) {
+      commit(suggestions[activeIdx].value);
+    } else {
+      commit(input);
+    }
+  }
+
   function clear() {
     setInput("");
     setAddress("");
+    setOpen(false);
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!open || suggestions.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIdx((i) => (i + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIdx((i) => (i - 1 + suggestions.length) % suggestions.length);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
   }
 
   const resolved = address && match.detectedFrom !== "none";
@@ -86,24 +180,74 @@ export function AddressFinder() {
 
           <div className="lg:col-span-7">
             <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative flex-1">
-                <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <div className="relative flex-1" ref={containerRef}>
+                <MapPin className="pointer-events-none absolute left-3 top-[1.4rem] h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                    setInput(e.target.value);
+                    setOpen(true);
+                    setActiveIdx(0);
+                  }}
+                  onFocus={() => setOpen(true)}
+                  onKeyDown={onKeyDown}
                   placeholder="e.g. Morristown, 07960, or 123 Main St, Boonton NJ"
                   className="h-12 pl-9 pr-9 text-base"
                   aria-label="Your address, town, or ZIP"
+                  aria-autocomplete="list"
+                  aria-expanded={open && suggestions.length > 0}
+                  autoComplete="off"
                 />
                 {input && (
                   <button
                     type="button"
                     onClick={clear}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted"
+                    className="absolute right-2 top-[1.4rem] -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted"
                     aria-label="Clear"
                   >
                     <X className="h-4 w-4" />
                   </button>
+                )}
+
+                {open && suggestions.length > 0 && (
+                  <ul
+                    role="listbox"
+                    className="absolute left-0 right-0 top-full z-20 mt-2 max-h-80 overflow-auto rounded-xl border bg-popover p-1 shadow-elegant"
+                  >
+                    {suggestions.map((s, i) => (
+                      <li key={`${s.kind}-${s.value}`}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={i === activeIdx}
+                          onMouseEnter={() => setActiveIdx(i)}
+                          onMouseDown={(e) => {
+                            e.preventDefault(); // keep focus on input
+                            commit(s.value);
+                          }}
+                          className={cn(
+                            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
+                            i === activeIdx ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
+                              s.kind === "zip"
+                                ? "bg-primary/10 text-primary"
+                                : "bg-muted text-muted-foreground",
+                            )}
+                          >
+                            {s.kind === "zip" ? <Hash className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-medium">{s.label}</span>
+                            <span className="block truncate text-xs text-muted-foreground">{s.sub}</span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
               <Button type="submit" size="lg" className="h-12">
@@ -111,6 +255,8 @@ export function AddressFinder() {
                 Find my races
               </Button>
             </form>
+
+
 
             {resolved && (
               <div className="mt-6">
