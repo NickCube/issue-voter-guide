@@ -64,42 +64,89 @@ function buildLocalSuggestions(query: string): Suggestion[] {
   return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true)));
 }
 
-// Photon (OSM) — free, no API key. Biased toward Morris County, NJ.
+// Geocoding via Photon (OSM) with a Nominatim fallback. Both are free, no key.
+// Biased to Morris County, NJ.
 async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promise<Suggestion[]> {
   const q = query.trim();
   if (q.length < 3) return [];
-  const url =
-    `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}` +
-    `&lat=40.7968&lon=-74.4815&zoom=12&limit=6&lang=en`;
+
+  // If the query looks like a street (starts with a number, or contains a street suffix)
+  // and doesn't already mention NJ / a town, append a Morris County NJ hint so geocoders
+  // return local results instead of random matches worldwide.
+  const looksLikeStreet =
+    /^\d+\s+\S+/.test(q) ||
+    /\b(st|street|rd|road|ln|lane|ave|avenue|dr|drive|blvd|ct|court|way|pl|place|ter|terrace|hwy|pkwy)\b\.?/i.test(q);
+  const mentionsNJ = /\bnj\b|new jersey/i.test(q);
+  const hinted = looksLikeStreet && !mentionsNJ ? `${q}, Morris County, NJ` : q;
+
+  const results: Suggestion[] = [];
+
+  // 1. Photon
   try {
+    const url =
+      `https://photon.komoot.io/api/?q=${encodeURIComponent(hinted)}` +
+      `&lat=40.7968&lon=-74.4815&zoom=12&limit=8&lang=en`;
     const res = await fetch(url, { signal });
-    if (!res.ok) return [];
-    const json = (await res.json()) as {
-      features?: Array<{
-        properties?: {
-          name?: string; housenumber?: string; street?: string;
-          city?: string; state?: string; postcode?: string;
-          country?: string; countrycode?: string;
-        };
-      }>;
-    };
-    const out: Suggestion[] = [];
-    for (const f of json.features ?? []) {
-      const p = f.properties ?? {};
-      if (p.countrycode && p.countrycode !== "US") continue;
-      if (p.state && p.state !== "New Jersey") continue;
-      const street = [p.housenumber, p.street].filter(Boolean).join(" ");
-      const primary = street || p.name || p.city || "";
-      if (!primary) continue;
-      const sub = [p.city, p.state, p.postcode].filter(Boolean).join(", ");
-      const value = [primary, p.city, p.state, p.postcode].filter(Boolean).join(", ");
-      out.push({ label: primary, sub, value, kind: "address" });
+    if (res.ok) {
+      const json = (await res.json()) as {
+        features?: Array<{
+          properties?: {
+            name?: string; housenumber?: string; street?: string;
+            city?: string; state?: string; postcode?: string;
+            country?: string; countrycode?: string;
+          };
+        }>;
+      };
+      for (const f of json.features ?? []) {
+        const p = f.properties ?? {};
+        if (p.countrycode && p.countrycode !== "US") continue;
+        if (p.state && p.state !== "New Jersey") continue;
+        const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+        const primary = street || p.name || p.city || "";
+        if (!primary) continue;
+        const sub = [p.city, p.state, p.postcode].filter(Boolean).join(", ");
+        const value = [primary, p.city, p.state, p.postcode].filter(Boolean).join(", ");
+        results.push({ label: primary, sub, value, kind: "address" });
+      }
     }
-    return out;
-  } catch {
-    return [];
+  } catch {}
+
+  // 2. Nominatim fallback (often better for specific house numbers)
+  if (results.length < 3) {
+    try {
+      const url =
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6` +
+        `&countrycodes=us&q=${encodeURIComponent(hinted)}`;
+      const res = await fetch(url, { signal, headers: { "Accept-Language": "en" } });
+      if (res.ok) {
+        const json = (await res.json()) as Array<{
+          display_name?: string;
+          address?: {
+            house_number?: string; road?: string;
+            city?: string; town?: string; village?: string; hamlet?: string;
+            county?: string; state?: string; postcode?: string;
+          };
+        }>;
+        for (const item of json) {
+          const a = item.address ?? {};
+          if (a.state && a.state !== "New Jersey") continue;
+          const city = a.city || a.town || a.village || a.hamlet || "";
+          const street = [a.house_number, a.road].filter(Boolean).join(" ");
+          const primary = street || city;
+          if (!primary) continue;
+          const sub = [city, a.state, a.postcode].filter(Boolean).join(", ");
+          const value = [primary, city, a.state, a.postcode].filter(Boolean).join(", ");
+          results.push({ label: primary, sub, value, kind: "address" });
+        }
+      }
+    } catch {}
   }
+
+  // Dedupe
+  const seen = new Set<string>();
+  return results.filter((r) => (seen.has(r.value.toLowerCase()) ? false : (seen.add(r.value.toLowerCase()), true)));
 }
+
 
 
 
