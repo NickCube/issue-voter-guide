@@ -122,7 +122,7 @@ function Home() {
         </section>
 
         {/* FEATURED + GRID — magazine layout */}
-        <section className="border-b bg-paper">
+        <section className="border-b bg-background">
           <div className="container mx-auto max-w-6xl px-4 py-20">
             <div className="mb-10 flex items-end justify-between gap-6">
               <div>
@@ -250,7 +250,7 @@ function Home() {
         </section>
 
         {/* TRUST */}
-        <section className="bg-paper-warm">
+        <section className="bg-muted/40">
           <div className="container mx-auto max-w-6xl px-4 py-24">
             <div className="mb-10 max-w-xl">
               <p className="font-display text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
