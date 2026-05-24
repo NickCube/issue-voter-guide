@@ -28,40 +28,77 @@ const SUGGESTION_TOWNS = [
   "Washington Township", "Wharton",
 ];
 
-type Suggestion = { label: string; sub: string; value: string; kind: "town" | "zip" };
+type Suggestion = {
+  label: string;
+  sub: string;
+  value: string;
+  kind: "town" | "zip" | "address";
+};
 
-function buildSuggestions(query: string): Suggestion[] {
+function buildLocalSuggestions(query: string): Suggestion[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-
-  // Pull out the last "token" so addresses like "123 Main St, Boon" still suggest.
   const tail = q.split(/[,\n]/).pop()?.trim() ?? q;
   const needle = tail.length >= 2 ? tail : q;
   if (needle.length < 2) return [];
 
   const results: Suggestion[] = [];
 
-  // ZIP code suggestions (numeric needle)
   if (/^\d{2,5}$/.test(needle)) {
     for (const [zip, town] of Object.entries(MORRIS_ZIP_TO_TOWN)) {
       if (zip.startsWith(needle)) {
         results.push({ label: zip, sub: `${town}, NJ`, value: zip, kind: "zip" });
-        if (results.length >= 6) break;
+        if (results.length >= 5) break;
       }
     }
   }
 
-  // Town name suggestions
   for (const town of SUGGESTION_TOWNS) {
     if (town.toLowerCase().includes(needle)) {
       results.push({ label: town, sub: "Morris County, NJ", value: `${town}, NJ`, kind: "town" });
-      if (results.length >= 8) break;
+      if (results.length >= 6) break;
     }
   }
 
-  // Dedupe by value
   const seen = new Set<string>();
-  return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true))).slice(0, 8);
+  return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true)));
+}
+
+// Photon (OSM) — free, no API key. Biased toward Morris County, NJ.
+async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promise<Suggestion[]> {
+  const q = query.trim();
+  if (q.length < 3) return [];
+  const url =
+    `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}` +
+    `&lat=40.7968&lon=-74.4815&zoom=12&limit=6&lang=en`;
+  try {
+    const res = await fetch(url, { signal });
+    if (!res.ok) return [];
+    const json = (await res.json()) as {
+      features?: Array<{
+        properties?: {
+          name?: string; housenumber?: string; street?: string;
+          city?: string; state?: string; postcode?: string;
+          country?: string; countrycode?: string;
+        };
+      }>;
+    };
+    const out: Suggestion[] = [];
+    for (const f of json.features ?? []) {
+      const p = f.properties ?? {};
+      if (p.countrycode && p.countrycode !== "US") continue;
+      if (p.state && p.state !== "New Jersey") continue;
+      const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+      const primary = street || p.name || p.city || "";
+      if (!primary) continue;
+      const sub = [p.city, p.state, p.postcode].filter(Boolean).join(", ");
+      const value = [primary, p.city, p.state, p.postcode].filter(Boolean).join(", ");
+      out.push({ label: primary, sub, value, kind: "address" });
+    }
+    return out;
+  } catch {
+    return [];
+  }
 }
 
 
