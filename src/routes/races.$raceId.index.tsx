@@ -1,8 +1,8 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
-import { Calendar, MapPin, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, ArrowRight, Users, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/races/$raceId/")({
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/races/$raceId/")({
 function RaceDetail() {
   const { raceId } = Route.useParams();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["race", raceId],
     queryFn: async () => {
       const [race, candidates, issues] = await Promise.all([
@@ -24,8 +24,11 @@ function RaceDetail() {
           .eq("race_id", raceId)
           .order("display_order"),
       ]);
-      if (!race.data) throw notFound();
-      return { race: race.data, candidates: candidates.data ?? [], issues: issues.data ?? [] };
+      return {
+        race: race.data,
+        candidates: candidates.data ?? [],
+        issues: issues.data ?? [],
+      };
     },
   });
 
@@ -34,8 +37,10 @@ function RaceDetail() {
       <SiteHeader />
       <main className="container mx-auto max-w-6xl px-4 py-12">
         {isLoading && <p className="text-muted-foreground">Loading race…</p>}
-        {error && <p className="text-destructive">Race not found.</p>}
-        {data && (
+        {!isLoading && !data?.race && (
+          <p className="text-destructive">Race not found.</p>
+        )}
+        {data?.race && (
           <>
             <div className="mb-10">
               <Link
