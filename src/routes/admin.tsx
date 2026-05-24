@@ -9,8 +9,9 @@ export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
-const links: { to: "/admin" | "/admin/races" | "/admin/candidates" | "/admin/issues" | "/admin/sources" | "/admin/position-claims" | "/admin/extractor"; label: string; exact?: boolean }[] = [
+const links: { to: "/admin" | "/admin/races" | "/admin/candidates" | "/admin/issues" | "/admin/sources" | "/admin/position-claims" | "/admin/extractor" | "/admin/import"; label: string; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", exact: true },
+  { to: "/admin/import", label: "Import from Ballotpedia" },
   { to: "/admin/extractor", label: "AI Extractor" },
   { to: "/admin/races", label: "Races" },
   { to: "/admin/candidates", label: "Candidates" },
