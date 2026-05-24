@@ -25,16 +25,15 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { data: sampleRace } = useQuery({
-    queryKey: ["sample-race"],
+  const { data: races = [] } = useQuery({
+    queryKey: ["home-races"],
     queryFn: async () => {
       const { data } = await supabase
         .from("races")
-        .select("id, name")
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      return data;
+        .select("id, name, location, election_date")
+        .order("election_date", { ascending: true })
+        .order("name", { ascending: true });
+      return data ?? [];
     },
   });
 
@@ -51,29 +50,59 @@ function Home() {
               Nonpartisan · Source-backed
             </span>
             <h1 className="mt-6 text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
-              Know what candidates stand for —{" "}
-              <span className="text-primary">with receipts.</span>
+              Know what candidates stand for — <span className="text-primary">with receipts.</span>
             </h1>
             <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
               Compare candidates by issue using plain-English summaries, source links, and
               confidence labels.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              {sampleRace ? (
-                <Button asChild size="lg">
-                  <Link to="/races/$raceId" params={{ raceId: sampleRace.id }}>
-                    View Sample Race <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
-              ) : (
-                <Button size="lg" disabled>
-                  Loading sample race…
-                </Button>
-              )}
+              <Button asChild size="lg">
+                <Link to="/races">
+                  Browse Races <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
               <Button asChild size="lg" variant="outline">
                 <Link to="/methodology">How we work</Link>
               </Button>
             </div>
+          </div>
+        </section>
+
+        {/* Races */}
+        <section className="container mx-auto max-w-5xl px-4 py-16">
+          <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-semibold tracking-tight">Live races</h2>
+              <p className="mt-2 text-muted-foreground">
+                Real races already loaded with sourced positions.
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/races">View all</Link>
+            </Button>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {races.map((race) => (
+              <Link
+                key={race.id}
+                to="/races/$raceId"
+                params={{ raceId: race.id }}
+                className="rounded-xl border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <h3 className="font-semibold leading-tight">{race.name}</h3>
+                <p className="mt-2 text-sm text-muted-foreground">{race.location}</p>
+                {race.election_date && (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    {new Date(race.election_date).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                )}
+              </Link>
+            ))}
           </div>
         </section>
 
