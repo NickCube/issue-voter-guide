@@ -13,6 +13,7 @@ import {
   MapPin,
   CalendarDays,
 } from "lucide-react";
+import { AddressFinder } from "@/components/address-finder";
 
 export const Route = createFileRoute("/")({
   head: () => ({
