@@ -62,9 +62,9 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   getParentRoute: () => AdminRoute,
 } as any)
 const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
-  id: '/$raceId',
-  path: '/$raceId',
-  getParentRoute: () => RacesRoute,
+  id: '/races/$raceId',
+  path: '/races/$raceId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
   id: '/candidates/$candidateId',
@@ -225,6 +225,7 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
+  RacesRaceIdRoute: typeof RacesRaceIdRouteWithChildren
   RacesIndexRoute: typeof RacesIndexRoute
 }
 
@@ -281,10 +282,10 @@ declare module '@tanstack/react-router' {
     }
     '/races/$raceId': {
       id: '/races/$raceId'
-      path: '/$raceId'
+      path: '/races/$raceId'
       fullPath: '/races/$raceId'
       preLoaderRoute: typeof RacesRaceIdRouteImport
-      parentRoute: typeof RacesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/candidates/$candidateId': {
       id: '/candidates/$candidateId'
@@ -367,6 +368,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface RacesRaceIdRouteChildren {
+  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
+}
+
+const RacesRaceIdRouteChildren: RacesRaceIdRouteChildren = {
+  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
+}
+
+const RacesRaceIdRouteWithChildren = RacesRaceIdRoute._addFileChildren(
+  RacesRaceIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -374,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
+  RacesRaceIdRoute: RacesRaceIdRouteWithChildren,
   RacesIndexRoute: RacesIndexRoute,
 }
 export const routeTree = rootRouteImport
