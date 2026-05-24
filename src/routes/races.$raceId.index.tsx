@@ -176,13 +176,49 @@ function RaceDetail() {
                             {c.bio}
                           </p>
                         )}
+                        {(() => {
+                          const myClaims = data.claims
+                            .filter((cl: any) => cl.candidate_id === c.id)
+                            .sort((a: any, b: any) =>
+                              (a.issues?.display_order ?? 99) - (b.issues?.display_order ?? 99)
+                            );
+                          if (myClaims.length === 0) {
+                            return (
+                              <p className="mt-4 text-xs italic text-muted-foreground">
+                                No public positions recorded yet.
+                              </p>
+                            );
+                          }
+                          return (
+                            <div className="mt-4 space-y-2.5">
+                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                Where they stand
+                              </p>
+                              {myClaims.slice(0, 3).map((cl: any) => (
+                                <div key={cl.id} className="rounded-lg border border-border/60 bg-muted/30 p-2.5">
+                                  <p className="text-[11px] font-semibold text-primary">
+                                    {cl.issues?.name}
+                                  </p>
+                                  <p className="mt-0.5 line-clamp-2 text-xs text-foreground/80">
+                                    {cl.summary}
+                                  </p>
+                                </div>
+                              ))}
+                              {myClaims.length > 3 && (
+                                <p className="text-[11px] text-muted-foreground">
+                                  +{myClaims.length - 3} more on profile
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <div className="mt-auto pt-5">
                           <Button asChild size="sm" variant="outline" className="w-full">
                             <Link
                               to="/candidates/$candidateId"
                               params={{ candidateId: c.id }}
                             >
-                              View profile
+                              View full profile & sources
                             </Link>
                           </Button>
                         </div>
