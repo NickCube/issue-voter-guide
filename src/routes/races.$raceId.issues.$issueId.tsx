@@ -93,9 +93,9 @@ function IssueComparison() {
                       {c.name}
                     </Link>
                     {c.party_or_affiliation && (
-                      <p className="text-xs text-muted-foreground">
-                        {c.party_or_affiliation}
-                      </p>
+                      <div className="mt-1">
+                        <PartyBadge party={c.party_or_affiliation} />
+                      </div>
                     )}
                   </div>
                   <ConfidenceBadge
