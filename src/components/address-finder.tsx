@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash } from "lucide-react";
+import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash, Home, Loader2 } from "lucide-react";
 import {
   matchAddressToTowns,
   raceMatchesAddress,
@@ -28,40 +28,77 @@ const SUGGESTION_TOWNS = [
   "Washington Township", "Wharton",
 ];
 
-type Suggestion = { label: string; sub: string; value: string; kind: "town" | "zip" };
+type Suggestion = {
+  label: string;
+  sub: string;
+  value: string;
+  kind: "town" | "zip" | "address";
+};
 
-function buildSuggestions(query: string): Suggestion[] {
+function buildLocalSuggestions(query: string): Suggestion[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-
-  // Pull out the last "token" so addresses like "123 Main St, Boon" still suggest.
   const tail = q.split(/[,\n]/).pop()?.trim() ?? q;
   const needle = tail.length >= 2 ? tail : q;
   if (needle.length < 2) return [];
 
   const results: Suggestion[] = [];
 
-  // ZIP code suggestions (numeric needle)
   if (/^\d{2,5}$/.test(needle)) {
     for (const [zip, town] of Object.entries(MORRIS_ZIP_TO_TOWN)) {
       if (zip.startsWith(needle)) {
         results.push({ label: zip, sub: `${town}, NJ`, value: zip, kind: "zip" });
-        if (results.length >= 6) break;
+        if (results.length >= 5) break;
       }
     }
   }
 
-  // Town name suggestions
   for (const town of SUGGESTION_TOWNS) {
     if (town.toLowerCase().includes(needle)) {
       results.push({ label: town, sub: "Morris County, NJ", value: `${town}, NJ`, kind: "town" });
-      if (results.length >= 8) break;
+      if (results.length >= 6) break;
     }
   }
 
-  // Dedupe by value
   const seen = new Set<string>();
-  return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true))).slice(0, 8);
+  return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true)));
+}
+
+// Photon (OSM) — free, no API key. Biased toward Morris County, NJ.
+async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promise<Suggestion[]> {
+  const q = query.trim();
+  if (q.length < 3) return [];
+  const url =
+    `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}` +
+    `&lat=40.7968&lon=-74.4815&zoom=12&limit=6&lang=en`;
+  try {
+    const res = await fetch(url, { signal });
+    if (!res.ok) return [];
+    const json = (await res.json()) as {
+      features?: Array<{
+        properties?: {
+          name?: string; housenumber?: string; street?: string;
+          city?: string; state?: string; postcode?: string;
+          country?: string; countrycode?: string;
+        };
+      }>;
+    };
+    const out: Suggestion[] = [];
+    for (const f of json.features ?? []) {
+      const p = f.properties ?? {};
+      if (p.countrycode && p.countrycode !== "US") continue;
+      if (p.state && p.state !== "New Jersey") continue;
+      const street = [p.housenumber, p.street].filter(Boolean).join(" ");
+      const primary = street || p.name || p.city || "";
+      if (!primary) continue;
+      const sub = [p.city, p.state, p.postcode].filter(Boolean).join(", ");
+      const value = [primary, p.city, p.state, p.postcode].filter(Boolean).join(", ");
+      out.push({ label: primary, sub, value, kind: "address" });
+    }
+    return out;
+  } catch {
+    return [];
+  }
 }
 
 
@@ -108,7 +145,38 @@ export function AddressFinder() {
     },
   });
 
-  const suggestions = useMemo(() => buildSuggestions(input), [input]);
+  const localSuggestions = useMemo(() => buildLocalSuggestions(input), [input]);
+  const [remoteSuggestions, setRemoteSuggestions] = useState<Suggestion[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  // Debounced street-address autocomplete via Photon.
+  useEffect(() => {
+    const q = input.trim();
+    if (q.length < 3) {
+      setRemoteSuggestions([]);
+      setSearching(false);
+      return;
+    }
+    const controller = new AbortController();
+    setSearching(true);
+    const t = setTimeout(async () => {
+      const results = await fetchStreetSuggestions(q, controller.signal);
+      setRemoteSuggestions(results);
+      setSearching(false);
+    }, 250);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [input]);
+
+  const suggestions = useMemo<Suggestion[]>(() => {
+    const merged = [...localSuggestions, ...remoteSuggestions];
+    const seen = new Set<string>();
+    return merged
+      .filter((s) => (seen.has(s.value.toLowerCase()) ? false : (seen.add(s.value.toLowerCase()), true)))
+      .slice(0, 8);
+  }, [localSuggestions, remoteSuggestions]);
   const match = useMemo(() => matchAddressToTowns(address), [address]);
   const filtered = useMemo(
     () => (address ? races.filter((r) => raceMatchesAddress(r.location, match)) : []),
@@ -209,7 +277,7 @@ export function AddressFinder() {
                   </button>
                 )}
 
-                {open && suggestions.length > 0 && (
+                {open && (suggestions.length > 0 || searching) && (
                   <ul
                     role="listbox"
                     className="absolute left-0 right-0 top-full z-20 mt-2 max-h-80 overflow-auto rounded-xl border bg-popover p-1 shadow-elegant"
@@ -222,7 +290,7 @@ export function AddressFinder() {
                           aria-selected={i === activeIdx}
                           onMouseEnter={() => setActiveIdx(i)}
                           onMouseDown={(e) => {
-                            e.preventDefault(); // keep focus on input
+                            e.preventDefault();
                             commit(s.value);
                           }}
                           className={cn(
@@ -235,11 +303,20 @@ export function AddressFinder() {
                               "flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
                               s.kind === "zip"
                                 ? "bg-primary/10 text-primary"
+                                : s.kind === "address"
+                                ? "bg-accent/15 text-accent-foreground"
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
-                            {s.kind === "zip" ? <Hash className="h-3.5 w-3.5" /> : <MapPin className="h-3.5 w-3.5" />}
+                            {s.kind === "zip" ? (
+                              <Hash className="h-3.5 w-3.5" />
+                            ) : s.kind === "address" ? (
+                              <Home className="h-3.5 w-3.5" />
+                            ) : (
+                              <MapPin className="h-3.5 w-3.5" />
+                            )}
                           </span>
+
                           <span className="min-w-0 flex-1">
                             <span className="block truncate text-sm font-medium">{s.label}</span>
                             <span className="block truncate text-xs text-muted-foreground">{s.sub}</span>
@@ -247,6 +324,14 @@ export function AddressFinder() {
                         </button>
                       </li>
                     ))}
+                    {searching && (
+                      <li className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
+                        <Loader2 className="h-3 w-3 animate-spin" /> Searching addresses…
+                      </li>
+                    )}
+                    {!searching && suggestions.length === 0 && (
+                      <li className="px-3 py-2 text-xs text-muted-foreground">No matches</li>
+                    )}
                   </ul>
                 )}
               </div>
