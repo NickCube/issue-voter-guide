@@ -5,7 +5,7 @@ import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Calendar, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/races/$raceId")({
+export const Route = createFileRoute("/races/$raceId/")({
   component: RaceDetail,
 });
 

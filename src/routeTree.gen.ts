@@ -16,7 +16,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RacesIndexRouteImport } from './routes/races.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
 import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
 import { Route as AdminSourcesRouteImport } from './routes/admin.sources'
 import { Route as AdminRacesRouteImport } from './routes/admin.races'
@@ -24,6 +23,7 @@ import { Route as AdminPositionClaimsRouteImport } from './routes/admin.position
 import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
 import { Route as AdminExtractorRouteImport } from './routes/admin.extractor'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
+import { Route as RacesRaceIdIndexRouteImport } from './routes/races.$raceId.index'
 import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -61,11 +61,6 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
-  id: '/races/$raceId',
-  path: '/races/$raceId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
   id: '/candidates/$candidateId',
   path: '/candidates/$candidateId',
@@ -101,6 +96,11 @@ const AdminCandidatesRoute = AdminCandidatesRouteImport.update({
   path: '/candidates',
   getParentRoute: () => AdminRoute,
 } as any)
+const RacesRaceIdIndexRoute = RacesRaceIdIndexRouteImport.update({
+  id: '/races/$raceId/',
+  path: '/races/$raceId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RacesRaceIdIssuesIssueIdRoute =
   RacesRaceIdIssuesIssueIdRouteImport.update({
     id: '/issues/$issueId',
@@ -121,9 +121,9 @@ export interface FileRoutesByFullPath {
   '/admin/races': typeof AdminRacesRoute
   '/admin/sources': typeof AdminSourcesRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
-  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/races/': typeof RacesIndexRoute
+  '/races/$raceId/': typeof RacesRaceIdIndexRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesByTo {
@@ -138,9 +138,9 @@ export interface FileRoutesByTo {
   '/admin/races': typeof AdminRacesRoute
   '/admin/sources': typeof AdminSourcesRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
-  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
   '/admin': typeof AdminIndexRoute
   '/races': typeof RacesIndexRoute
+  '/races/$raceId': typeof RacesRaceIdIndexRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRoutesById {
@@ -157,9 +157,9 @@ export interface FileRoutesById {
   '/admin/races': typeof AdminRacesRoute
   '/admin/sources': typeof AdminSourcesRoute
   '/candidates/$candidateId': typeof CandidatesCandidateIdRoute
-  '/races/$raceId': typeof RacesRaceIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
   '/races/': typeof RacesIndexRoute
+  '/races/$raceId/': typeof RacesRaceIdIndexRoute
   '/races/$raceId/issues/$issueId': typeof RacesRaceIdIssuesIssueIdRoute
 }
 export interface FileRouteTypes {
@@ -177,9 +177,9 @@ export interface FileRouteTypes {
     | '/admin/races'
     | '/admin/sources'
     | '/candidates/$candidateId'
-    | '/races/$raceId'
     | '/admin/'
     | '/races/'
+    | '/races/$raceId/'
     | '/races/$raceId/issues/$issueId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -194,9 +194,9 @@ export interface FileRouteTypes {
     | '/admin/races'
     | '/admin/sources'
     | '/candidates/$candidateId'
-    | '/races/$raceId'
     | '/admin'
     | '/races'
+    | '/races/$raceId'
     | '/races/$raceId/issues/$issueId'
   id:
     | '__root__'
@@ -212,9 +212,9 @@ export interface FileRouteTypes {
     | '/admin/races'
     | '/admin/sources'
     | '/candidates/$candidateId'
-    | '/races/$raceId'
     | '/admin/'
     | '/races/'
+    | '/races/$raceId/'
     | '/races/$raceId/issues/$issueId'
   fileRoutesById: FileRoutesById
 }
@@ -225,8 +225,8 @@ export interface RootRouteChildren {
   MethodologyRoute: typeof MethodologyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   CandidatesCandidateIdRoute: typeof CandidatesCandidateIdRoute
-  RacesRaceIdRoute: typeof RacesRaceIdRouteWithChildren
   RacesIndexRoute: typeof RacesIndexRoute
+  RacesRaceIdIndexRoute: typeof RacesRaceIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -280,13 +280,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/races/$raceId': {
-      id: '/races/$raceId'
-      path: '/races/$raceId'
-      fullPath: '/races/$raceId'
-      preLoaderRoute: typeof RacesRaceIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/candidates/$candidateId': {
       id: '/candidates/$candidateId'
       path: '/candidates/$candidateId'
@@ -336,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCandidatesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/races/$raceId/': {
+      id: '/races/$raceId/'
+      path: '/races/$raceId'
+      fullPath: '/races/$raceId/'
+      preLoaderRoute: typeof RacesRaceIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/races/$raceId/issues/$issueId': {
       id: '/races/$raceId/issues/$issueId'
       path: '/issues/$issueId'
@@ -368,18 +368,6 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface RacesRaceIdRouteChildren {
-  RacesRaceIdIssuesIssueIdRoute: typeof RacesRaceIdIssuesIssueIdRoute
-}
-
-const RacesRaceIdRouteChildren: RacesRaceIdRouteChildren = {
-  RacesRaceIdIssuesIssueIdRoute: RacesRaceIdIssuesIssueIdRoute,
-}
-
-const RacesRaceIdRouteWithChildren = RacesRaceIdRoute._addFileChildren(
-  RacesRaceIdRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -387,8 +375,8 @@ const rootRouteChildren: RootRouteChildren = {
   MethodologyRoute: MethodologyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   CandidatesCandidateIdRoute: CandidatesCandidateIdRoute,
-  RacesRaceIdRoute: RacesRaceIdRouteWithChildren,
   RacesIndexRoute: RacesIndexRoute,
+  RacesRaceIdIndexRoute: RacesRaceIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
