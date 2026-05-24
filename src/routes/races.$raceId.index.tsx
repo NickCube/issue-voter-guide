@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { Calendar, MapPin, ArrowRight, Users, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PartyBadge } from "@/components/party-badge";
 
 export const Route = createFileRoute("/races/$raceId/")({
   component: RaceDetail,
