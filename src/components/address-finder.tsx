@@ -145,7 +145,38 @@ export function AddressFinder() {
     },
   });
 
-  const suggestions = useMemo(() => buildSuggestions(input), [input]);
+  const localSuggestions = useMemo(() => buildLocalSuggestions(input), [input]);
+  const [remoteSuggestions, setRemoteSuggestions] = useState<Suggestion[]>([]);
+  const [searching, setSearching] = useState(false);
+
+  // Debounced street-address autocomplete via Photon.
+  useEffect(() => {
+    const q = input.trim();
+    if (q.length < 3) {
+      setRemoteSuggestions([]);
+      setSearching(false);
+      return;
+    }
+    const controller = new AbortController();
+    setSearching(true);
+    const t = setTimeout(async () => {
+      const results = await fetchStreetSuggestions(q, controller.signal);
+      setRemoteSuggestions(results);
+      setSearching(false);
+    }, 250);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [input]);
+
+  const suggestions = useMemo<Suggestion[]>(() => {
+    const merged = [...localSuggestions, ...remoteSuggestions];
+    const seen = new Set<string>();
+    return merged
+      .filter((s) => (seen.has(s.value.toLowerCase()) ? false : (seen.add(s.value.toLowerCase()), true)))
+      .slice(0, 8);
+  }, [localSuggestions, remoteSuggestions]);
   const match = useMemo(() => matchAddressToTowns(address), [address]);
   const filtered = useMemo(
     () => (address ? races.filter((r) => raceMatchesAddress(r.location, match)) : []),
