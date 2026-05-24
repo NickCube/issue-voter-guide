@@ -99,7 +99,15 @@ function RacesPage() {
                     </span>
                   )}
                 </div>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight">{race.name}</h2>
+                {(() => {
+                  const isPrimary = /primary/i.test(race.office_description ?? "") || /primary/i.test(race.name);
+                  return isPrimary ? (
+                    <span className="mt-3 inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                      Primary · June 2 2026
+                    </span>
+                  ) : null;
+                })()}
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight">{race.name}</h2>
                 {race.office_description && (
                   <p className="mt-3 line-clamp-3 text-sm text-muted-foreground">
                     {race.office_description}
