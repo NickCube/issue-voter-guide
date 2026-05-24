@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ExternalLink, Globe } from "lucide-react";
+import { PartyBadge } from "@/components/party-badge";
 
 export const Route = createFileRoute("/candidates/$candidateId")({
   component: CandidateProfile,
@@ -75,7 +76,7 @@ function CandidateProfile() {
               {c.name}
             </h1>
             {c.party_or_affiliation && (
-              <p className="mt-1 text-sm text-muted-foreground">{c.party_or_affiliation}</p>
+              <div className="mt-2"><PartyBadge party={c.party_or_affiliation} /></div>
             )}
             {c.website_url && (
               <a
