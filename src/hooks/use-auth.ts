@@ -25,14 +25,23 @@ export function useAuth() {
       return;
     }
     setLoading(true);
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }) => setIsAdmin(!!data))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    async function checkAdmin() {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (!cancelled) {
+        setIsAdmin(!!data);
+        setLoading(false);
+      }
+    }
+    checkAdmin();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   return { user, isAdmin, loading };
