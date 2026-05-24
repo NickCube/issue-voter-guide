@@ -23,6 +23,7 @@ import { Route as AdminSourcesRouteImport } from './routes/admin.sources'
 import { Route as AdminRacesRouteImport } from './routes/admin.races'
 import { Route as AdminPositionClaimsRouteImport } from './routes/admin.position-claims'
 import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
+import { Route as AdminImportRouteImport } from './routes/admin.import'
 import { Route as AdminExtractorRouteImport } from './routes/admin.extractor'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
 import { Route as RacesRaceIdIndexRouteImport } from './routes/races.$raceId.index'
@@ -98,6 +99,11 @@ const AdminIssuesRoute = AdminIssuesRouteImport.update({
   path: '/issues',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminImportRoute = AdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminExtractorRoute = AdminExtractorRouteImport.update({
   id: '/extractor',
   path: '/extractor',
@@ -129,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/issues': typeof AdminIssuesRoute
   '/admin/position-claims': typeof AdminPositionClaimsRoute
   '/admin/races': typeof AdminRacesRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/issues': typeof AdminIssuesRoute
   '/admin/position-claims': typeof AdminPositionClaimsRoute
   '/admin/races': typeof AdminRacesRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/admin/candidates': typeof AdminCandidatesRoute
   '/admin/extractor': typeof AdminExtractorRoute
+  '/admin/import': typeof AdminImportRoute
   '/admin/issues': typeof AdminIssuesRoute
   '/admin/position-claims': typeof AdminPositionClaimsRoute
   '/admin/races': typeof AdminRacesRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
+    | '/admin/import'
     | '/admin/issues'
     | '/admin/position-claims'
     | '/admin/races'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
+    | '/admin/import'
     | '/admin/issues'
     | '/admin/position-claims'
     | '/admin/races'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin/candidates'
     | '/admin/extractor'
+    | '/admin/import'
     | '/admin/issues'
     | '/admin/position-claims'
     | '/admin/races'
@@ -348,6 +360,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIssuesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/import': {
+      id: '/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AdminImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/extractor': {
       id: '/admin/extractor'
       path: '/extractor'
@@ -382,6 +401,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminCandidatesRoute: typeof AdminCandidatesRoute
   AdminExtractorRoute: typeof AdminExtractorRoute
+  AdminImportRoute: typeof AdminImportRoute
   AdminIssuesRoute: typeof AdminIssuesRoute
   AdminPositionClaimsRoute: typeof AdminPositionClaimsRoute
   AdminRacesRoute: typeof AdminRacesRoute
@@ -392,6 +412,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCandidatesRoute: AdminCandidatesRoute,
   AdminExtractorRoute: AdminExtractorRoute,
+  AdminImportRoute: AdminImportRoute,
   AdminIssuesRoute: AdminIssuesRoute,
   AdminPositionClaimsRoute: AdminPositionClaimsRoute,
   AdminRacesRoute: AdminRacesRoute,
