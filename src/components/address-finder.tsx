@@ -1,13 +1,70 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, ArrowUpRight, CalendarDays, X } from "lucide-react";
-import { matchAddressToTowns, raceMatchesAddress } from "@/lib/address-match";
+import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash } from "lucide-react";
+import {
+  matchAddressToTowns,
+  raceMatchesAddress,
+  MORRIS_ZIP_TO_TOWN,
+} from "@/lib/address-match";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bb.address";
+
+// Canonical municipality list for autocomplete (matches what races.location uses).
+const SUGGESTION_TOWNS = [
+  "Boonton Town", "Boonton Township", "Butler Borough", "Chatham Borough",
+  "Chatham Township", "Chester Borough", "Chester Township", "Denville Township",
+  "Dover", "East Hanover Township", "Florham Park Borough", "Hanover Township",
+  "Harding Township", "Jefferson Township", "Kinnelon Borough", "Lincoln Park Borough",
+  "Long Hill Township", "Madison", "Mendham Borough", "Mendham Township",
+  "Mine Hill Township", "Montville Township", "Morris Plains Borough",
+  "Morris Township", "Morristown", "Mount Arlington Borough", "Mount Olive",
+  "Mountain Lakes", "Netcong", "Parsippany-Troy Hills", "Pequannock", "Randolph",
+  "Riverdale", "Rockaway", "Rockaway Township", "Roxbury", "Victory Gardens",
+  "Washington Township", "Wharton",
+];
+
+type Suggestion = { label: string; sub: string; value: string; kind: "town" | "zip" };
+
+function buildSuggestions(query: string): Suggestion[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+
+  // Pull out the last "token" so addresses like "123 Main St, Boon" still suggest.
+  const tail = q.split(/[,\n]/).pop()?.trim() ?? q;
+  const needle = tail.length >= 2 ? tail : q;
+  if (needle.length < 2) return [];
+
+  const results: Suggestion[] = [];
+
+  // ZIP code suggestions (numeric needle)
+  if (/^\d{2,5}$/.test(needle)) {
+    for (const [zip, town] of Object.entries(MORRIS_ZIP_TO_TOWN)) {
+      if (zip.startsWith(needle)) {
+        results.push({ label: zip, sub: `${town}, NJ`, value: zip, kind: "zip" });
+        if (results.length >= 6) break;
+      }
+    }
+  }
+
+  // Town name suggestions
+  for (const town of SUGGESTION_TOWNS) {
+    if (town.toLowerCase().includes(needle)) {
+      results.push({ label: town, sub: "Morris County, NJ", value: `${town}, NJ`, kind: "town" });
+      if (results.length >= 8) break;
+    }
+  }
+
+  // Dedupe by value
+  const seen = new Set<string>();
+  return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true))).slice(0, 8);
+}
+
+
 
 function fmtDate(d?: string | null) {
   if (!d) return null;
