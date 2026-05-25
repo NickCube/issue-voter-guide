@@ -124,13 +124,23 @@ function RacesPage() {
                     {race.office_description}
                   </p>
                 )}
-                <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <span className="rounded-full bg-muted px-3 py-1">
-                    {race.candidateCount} candidates
+                <div className="mt-5 flex flex-wrap items-center gap-2 text-xs">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[oklch(0.55_0.13_245)]/30 bg-[oklch(0.55_0.13_245)]/10 px-2.5 py-1 font-semibold text-[oklch(0.35_0.12_245)] dark:text-[oklch(0.85_0.10_245)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.55_0.13_245)]" />
+                    {race.demCount} Dem
                   </span>
-                  <span className="rounded-full bg-muted px-3 py-1">{race.issueCount} issues</span>
-                  <span className="rounded-full bg-muted px-3 py-1">
-                    {race.claimCount} sourced positions
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-[oklch(0.55_0.18_25)]/30 bg-[oklch(0.55_0.18_25)]/10 px-2.5 py-1 font-semibold text-[oklch(0.40_0.15_25)] dark:text-[oklch(0.85_0.12_25)]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[oklch(0.55_0.18_25)]" />
+                    {race.repCount} Rep
+                  </span>
+                  {race.otherCount > 0 && (
+                    <span className="rounded-full border bg-muted px-2.5 py-1 font-medium text-muted-foreground">
+                      {race.otherCount} other
+                    </span>
+                  )}
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">{race.issueCount} issues</span>
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-muted-foreground">
+                    {race.claimCount} sourced
                   </span>
                 </div>
                 <Button asChild className="mt-6" size="sm">
