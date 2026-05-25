@@ -146,86 +146,122 @@ function RaceDetail() {
               {/* Candidates */}
               <section>
                 <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Candidates
+                  {isPrimary ? "Candidates by party primary" : "Candidates"}
                 </h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {data.candidates.map((c) => (
-                    <article
-                      key={c.id}
-                      className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                      <div className="h-1.5 w-full bg-gradient-to-r from-primary/60 via-primary/20 to-transparent" />
-                      <div className="flex flex-col p-6">
-                        <div className="flex items-start gap-4">
-                          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-muted to-accent/40 font-serif text-lg font-semibold text-primary ring-1 ring-border">
-                            {c.name
-                              .split(" ")
-                              .map((s) => s[0])
-                              .slice(0, 2)
-                              .join("")}
-                          </div>
-                          <div className="min-w-0">
-                            <h3 className="truncate font-semibold leading-tight">{c.name}</h3>
-                            <div className="mt-1.5">
-                              <PartyBadge party={c.party_or_affiliation} />
-                            </div>
-                          </div>
-                        </div>
-                        {c.bio && (
-                          <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">
-                            {c.bio}
-                          </p>
-                        )}
-                        {(() => {
-                          const myClaims = data.claims
-                            .filter((cl: any) => cl.candidate_id === c.id)
-                            .sort((a: any, b: any) =>
-                              (a.issues?.display_order ?? 99) - (b.issues?.display_order ?? 99)
-                            );
-                          if (myClaims.length === 0) {
-                            return (
-                              <p className="mt-4 text-xs italic text-muted-foreground">
-                                No public positions recorded yet.
-                              </p>
-                            );
-                          }
-                          return (
-                            <div className="mt-4 space-y-2.5">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                                Where they stand
-                              </p>
-                              {myClaims.slice(0, 3).map((cl: any) => (
-                                <div key={cl.id} className="rounded-lg border border-border/60 bg-muted/30 p-2.5">
-                                  <p className="text-[11px] font-semibold text-primary">
-                                    {cl.issues?.name}
-                                  </p>
-                                  <p className="mt-0.5 line-clamp-2 text-xs text-foreground/80">
-                                    {cl.summary}
-                                  </p>
+                {isPrimary && (
+                  <p className="mb-6 max-w-3xl text-sm text-muted-foreground">
+                    This is a <strong className="text-foreground">closed primary</strong>: only voters registered with that party can vote in that party's primary. The winners of each party's primary advance to the November general election.
+                  </p>
+                )}
+                {(() => {
+                  const partyOf = (c: any) => {
+                    const p = (c.party_or_affiliation ?? "").toLowerCase();
+                    if (p.includes("democrat")) return "dem";
+                    if (p.includes("republican")) return "rep";
+                    return "other";
+                  };
+                  const groupDefs = isPrimary
+                    ? [
+                        { key: "dem", label: "Democratic Primary", sub: "Vote if registered Democrat", bar: "bg-[oklch(0.55_0.13_245)]", text: "text-[oklch(0.35_0.12_245)] dark:text-[oklch(0.85_0.10_245)]", border: "border-[oklch(0.55_0.13_245)]/40 bg-[oklch(0.55_0.13_245)]/5" },
+                        { key: "rep", label: "Republican Primary", sub: "Vote if registered Republican", bar: "bg-[oklch(0.55_0.18_25)]", text: "text-[oklch(0.40_0.15_25)] dark:text-[oklch(0.85_0.12_25)]", border: "border-[oklch(0.55_0.18_25)]/40 bg-[oklch(0.55_0.18_25)]/5" },
+                        { key: "other", label: "Other / Independent", sub: "", bar: "bg-muted-foreground", text: "text-muted-foreground", border: "border-border bg-muted/30" },
+                      ]
+                    : [{ key: "all", label: "", sub: "", bar: "bg-primary/60", text: "", border: "" }];
+
+                  const groups = groupDefs
+                    .map((g) => ({
+                      ...g,
+                      list: g.key === "all" ? data.candidates : data.candidates.filter((c) => partyOf(c) === g.key),
+                    }))
+                    .filter((g) => g.key === "all" || isPrimary ? true : g.list.length > 0)
+                    .filter((g) => !(isPrimary && g.key === "other" && g.list.length === 0));
+
+                  return (
+                    <div className="space-y-10">
+                      {groups.map((g) => (
+                        <div key={g.key}>
+                          {g.label && (
+                            <div className={`mb-4 flex items-center justify-between rounded-xl border p-4 ${g.border}`}>
+                              <div className="flex items-center gap-3">
+                                <span className={`h-8 w-1.5 rounded-full ${g.bar}`} />
+                                <div>
+                                  <h3 className={`font-serif text-xl font-semibold ${g.text}`}>{g.label}</h3>
+                                  {g.sub && <p className="text-xs text-muted-foreground">{g.sub}</p>}
                                 </div>
-                              ))}
-                              {myClaims.length > 3 && (
-                                <p className="text-[11px] text-muted-foreground">
-                                  +{myClaims.length - 3} more on profile
-                                </p>
-                              )}
+                              </div>
+                              <span className="text-xs font-medium text-muted-foreground">
+                                {g.list.length} {g.list.length === 1 ? "candidate" : "candidates"}
+                              </span>
                             </div>
-                          );
-                        })()}
-                        <div className="mt-auto pt-5">
-                          <Button asChild size="sm" variant="outline" className="w-full">
-                            <Link
-                              to="/candidates/$candidateId"
-                              params={{ candidateId: c.id }}
-                            >
-                              View full profile & sources
-                            </Link>
-                          </Button>
+                          )}
+                          {g.list.length === 0 ? (
+                            <p className="rounded-lg border border-dashed bg-muted/20 px-4 py-6 text-center text-sm italic text-muted-foreground">
+                              No candidates filed for this primary.
+                            </p>
+                          ) : (
+                            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                              {g.list.map((c) => (
+                                <article
+                                  key={c.id}
+                                  className="group flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                                >
+                                  <div className={`h-1.5 w-full ${g.bar || "bg-primary/60"}`} />
+                                  <div className="flex flex-col p-6">
+                                    <div className="flex items-start gap-4">
+                                      <div className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-muted to-accent/40 font-serif text-lg font-semibold text-primary ring-1 ring-border">
+                                        {c.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
+                                      </div>
+                                      <div className="min-w-0">
+                                        <h3 className="truncate font-semibold leading-tight">{c.name}</h3>
+                                        <div className="mt-1.5">
+                                          <PartyBadge party={c.party_or_affiliation} />
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {c.bio && (
+                                      <p className="mt-4 line-clamp-3 text-sm text-muted-foreground">{c.bio}</p>
+                                    )}
+                                    {(() => {
+                                      const myClaims = data.claims
+                                        .filter((cl: any) => cl.candidate_id === c.id)
+                                        .sort((a: any, b: any) => (a.issues?.display_order ?? 99) - (b.issues?.display_order ?? 99));
+                                      if (myClaims.length === 0) {
+                                        return (
+                                          <p className="mt-4 text-xs italic text-muted-foreground">No public positions recorded yet.</p>
+                                        );
+                                      }
+                                      return (
+                                        <div className="mt-4 space-y-2.5">
+                                          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Where they stand</p>
+                                          {myClaims.slice(0, 3).map((cl: any) => (
+                                            <div key={cl.id} className="rounded-lg border border-border/60 bg-muted/30 p-2.5">
+                                              <p className="text-[11px] font-semibold text-primary">{cl.issues?.name}</p>
+                                              <p className="mt-0.5 line-clamp-2 text-xs text-foreground/80">{cl.summary}</p>
+                                            </div>
+                                          ))}
+                                          {myClaims.length > 3 && (
+                                            <p className="text-[11px] text-muted-foreground">+{myClaims.length - 3} more on profile</p>
+                                          )}
+                                        </div>
+                                      );
+                                    })()}
+                                    <div className="mt-auto pt-5">
+                                      <Button asChild size="sm" variant="outline" className="w-full">
+                                        <Link to="/candidates/$candidateId" params={{ candidateId: c.id }}>
+                                          View full profile & sources
+                                        </Link>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </article>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                      ))}
+                    </div>
+                  );
+                })()}
               </section>
             </div>
           </>
