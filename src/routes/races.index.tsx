@@ -26,6 +26,20 @@ type RaceSummary = {
   election_date: string | null;
   office_description: string | null;
   candidateCount: number;
+  demCount: number;
+  repCount: number;
+  otherCount: number;
+  issueCount: number;
+  claimCount: number;
+};
+
+type RaceSummary = {
+  id: string;
+  name: string;
+  location: string | null;
+  election_date: string | null;
+  office_description: string | null;
+  candidateCount: number;
   issueCount: number;
   claimCount: number;
 };
