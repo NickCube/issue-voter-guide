@@ -33,17 +33,6 @@ type RaceSummary = {
   claimCount: number;
 };
 
-type RaceSummary = {
-  id: string;
-  name: string;
-  location: string | null;
-  election_date: string | null;
-  office_description: string | null;
-  candidateCount: number;
-  issueCount: number;
-  claimCount: number;
-};
-
 function RacesPage() {
   const { data: races = [], isLoading } = useQuery({
     queryKey: ["races-list"],
@@ -54,7 +43,7 @@ function RacesPage() {
           .select("id, name, location, election_date, office_description")
           .order("election_date", { ascending: true })
           .order("name", { ascending: true }),
-        supabase.from("candidates").select("id, race_id"),
+        supabase.from("candidates").select("id, race_id, party_or_affiliation"),
         supabase.from("issues").select("id, race_id"),
         supabase.from("position_claims").select("id, candidate_id").eq("status", "Approved"),
       ]);
@@ -63,14 +52,22 @@ function RacesPage() {
       const issues = issuesRes.data ?? [];
       const raceByCandidate = new Map(candidates.map((c) => [c.id, c.race_id]));
 
-      return (racesRes.data ?? []).map((race) => ({
-        ...race,
-        candidateCount: candidates.filter((c) => c.race_id === race.id).length,
-        issueCount: issues.filter((i) => i.race_id === race.id).length,
-        claimCount: (claimsRes.data ?? []).filter(
-          (claim) => raceByCandidate.get(claim.candidate_id) === race.id,
-        ).length,
-      }));
+      return (racesRes.data ?? []).map((race) => {
+        const raceCandidates = candidates.filter((c) => c.race_id === race.id);
+        const countParty = (test: (p: string) => boolean) =>
+          raceCandidates.filter((c) => test((c.party_or_affiliation ?? "").toLowerCase())).length;
+        return {
+          ...race,
+          candidateCount: raceCandidates.length,
+          demCount: countParty((p) => p.includes("democrat")),
+          repCount: countParty((p) => p.includes("republican")),
+          otherCount: countParty((p) => !p.includes("democrat") && !p.includes("republican")),
+          issueCount: issues.filter((i) => i.race_id === race.id).length,
+          claimCount: (claimsRes.data ?? []).filter(
+            (claim) => raceByCandidate.get(claim.candidate_id) === race.id,
+          ).length,
+        };
+      });
     },
   });
 
