@@ -10,6 +10,10 @@ export const Route = createFileRoute("/methodology")({
         content:
           "How BallotBrief researches, sources, and reviews candidate positions — and when we say 'No clear public position found.'",
       },
+      { property: "og:title", content: "Methodology — BallotBrief" },
+      { property: "og:description", content: "How BallotBrief verifies election filings and publishes source-backed candidate positions." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Methodology,
@@ -39,7 +43,12 @@ function Methodology() {
             Summaries are written in plain English.
           </Section>
 
-          <Section title="Sources we use">
+          <Section title="Official records come first">
+            The public race and candidate roster comes from the Somerset County Clerk.
+            Records imported from other sources stay hidden until they are verified.
+          </Section>
+
+          <Section title="Sources we use for positions">
             <ul className="list-disc pl-6">
               <li>Candidate websites</li>
               <li>Interviews</li>
@@ -53,6 +62,12 @@ function Methodology() {
           <Section title="Every claim has a receipt">
             Each published position is tied to a specific source. We display the source title,
             type, publication date, and a link so you can verify the evidence yourself.
+          </Section>
+
+          <Section title="How AI is used">
+            AI may help locate and summarize source material. It cannot make a race,
+            candidate, or position public by itself. Published positions require a source
+            link and review; missing evidence is shown as a gap, never filled by guessing.
           </Section>
 
           <Section title="When evidence is missing">

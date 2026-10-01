@@ -234,7 +234,7 @@ export function AddressFinder() {
               }}
               onFocus={() => setOpen(true)}
               onKeyDown={onKeyDown}
-              placeholder="Enter your town or ZIP (e.g. Morristown)"
+              placeholder="Enter your town, ZIP, or street address"
               className="h-14 border-none bg-transparent pl-12 pr-12 text-lg focus-visible:ring-0 placeholder:text-muted-foreground/60"
               aria-label="Your address, town, or ZIP"
               autoComplete="off"
