@@ -12,6 +12,7 @@ import {
   BookOpen,
   MapPin,
   CalendarDays,
+  CheckCircle2,
 } from "lucide-react";
 import { AddressFinder } from "@/components/address-finder";
 
@@ -22,12 +23,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Nonpartisan candidate comparison by issue. Plain-English summaries, source links, and confidence labels.",
-      },
-      { property: "og:title", content: "BallotBrief" },
-      {
-        property: "og:description",
-        content: "Compare candidates by issue with source-backed receipts.",
+          "Nonpartisan candidate comparison by issue. Plain-English summaries, source links, and verified positions.",
       },
     ],
   }),
@@ -61,240 +57,149 @@ function Home() {
   const totalRaces = races.length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background selection:bg-primary selection:text-primary-foreground">
       <SiteHeader />
 
       <main>
-        {/* HERO — dark navy editorial */}
-        <section className="relative overflow-hidden bg-hero-gradient text-primary-foreground">
+        {/* HERO — Redesigned for focus */}
+        <section className="relative overflow-hidden bg-hero-gradient text-primary-foreground pb-40 pt-20">
           <div className="absolute inset-0 grain opacity-40" aria-hidden />
           <div
-            className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full blur-3xl"
-            style={{ background: "radial-gradient(closest-side, color-mix(in oklab, white 18%, transparent), transparent)" }}
+            className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full blur-3xl opacity-20"
+            style={{ background: "radial-gradient(closest-side, white, transparent)" }}
             aria-hidden
           />
-          <div className="relative container mx-auto max-w-6xl px-4 pt-20 pb-24 sm:pt-28 sm:pb-32">
-            <div className="grid items-end gap-12 lg:grid-cols-12">
-              <div className="lg:col-span-7">
-                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-white/80 backdrop-blur">
-                  <span className="h-1.5 w-1.5 rounded-full bg-success" />
-                  Nonpartisan · Source-backed
-                </span>
-                <h1 className="mt-6 font-display text-5xl font-semibold leading-[1.02] tracking-tight text-balance sm:text-6xl lg:text-7xl">
-                  Know what candidates
-                  <br />
-                  stand for —{" "}
-                  <span className="italic text-white/70">with receipts.</span>
-                </h1>
-                <p className="mt-6 max-w-xl text-lg text-white/70">
-                  Compare candidates issue by issue with plain-English summaries,
-                  source links, and honest confidence labels. Built for voters who
-                  want the facts — not the spin.
-                </p>
-                <div className="mt-9 flex flex-wrap items-center gap-3">
-                  <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
-                    <Link to="/races">
-                      Browse {totalRaces || ""} Races
-                      <ArrowRight className="ml-1 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="border-white/25 bg-transparent text-white hover:bg-white/10 hover:text-white"
-                  >
-                    <Link to="/methodology">How we work</Link>
-                  </Button>
-                </div>
-              </div>
+          
+          <div className="relative container mx-auto max-w-5xl px-4 text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-md">
+              <CheckCircle2 className="h-3 w-3 text-success" />
+              Human-Verified · Nonpartisan
+            </span>
+            <h1 className="mt-8 font-display text-5xl font-bold leading-[1.05] tracking-tight text-balance sm:text-6xl lg:text-8xl">
+              Know the candidates
+              <br />
+              <span className="italic text-white/60">before you vote.</span>
+            </h1>
+            <p className="mx-auto mt-8 max-w-2xl text-lg text-white/70 leading-relaxed sm:text-xl">
+              Plain-English candidate summaries, source links, and verified 
+              position labels. Built for voters who want facts, not spin.
+            </p>
+          </div>
+        </section>
 
-              {/* Hero stats column */}
-              <div className="lg:col-span-5">
-                <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
-                  <Stat label="Live races" value={totalRaces.toString()} />
-                  <Stat label="Coverage" value="Morris County, NJ" />
-                  <Stat label="Bias" value="None — period." />
-                  <Stat label="Every claim" value="Sourced & reviewed" />
-                </dl>
-              </div>
+        {/* INTEGRATED FINDER — Overlapping the hero */}
+        <div className="relative -mt-32 px-4">
+          <div className="mx-auto max-w-3xl">
+            <AddressFinder />
+          </div>
+        </div>
+
+        {/* TRUST SIGNALS */}
+        <section className="bg-background pt-24 pb-20">
+          <div className="container mx-auto max-w-6xl px-4">
+            <div className="grid gap-px overflow-hidden rounded-3xl border bg-border sm:grid-cols-2 lg:grid-cols-4 shadow-elegant">
+              {[
+                { icon: Scale, t: "Nonpartisan", d: "We never endorse, rank, or recommend candidates." },
+                { icon: FileSearch, t: "Source-backed", d: "Every published claim links directly to its evidence." },
+                { icon: ShieldCheck, t: "Human Review", d: "A human verify every position before it goes live." },
+                { icon: BookOpen, t: "Honest Gaps", d: "If evidence is missing, we say so plainly." },
+              ].map((f) => (
+                <div key={f.t} className="bg-card p-8 group transition-colors hover:bg-muted/30">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                    <f.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="mt-6 font-display text-lg font-bold">{f.t}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{f.d}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* PERSONALIZED FINDER */}
-        <AddressFinder />
-
-        {/* FEATURED + GRID — magazine layout */}
-        <section className="border-b bg-background">
-          <div className="container mx-auto max-w-6xl px-4 py-20">
-            <div className="mb-10 flex items-end justify-between gap-6">
+        {/* FEATURED RACES */}
+        <section className="bg-muted/30 py-24 border-y">
+          <div className="container mx-auto max-w-6xl px-4">
+            <div className="mb-12 flex items-end justify-between gap-6">
               <div>
-                <p className="font-display text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                  Live races
+                <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary">
+                  Election Coverage
                 </p>
-                <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-                  On the ballot now
+                <h2 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
+                  On your ballot
                 </h2>
               </div>
-              <Button asChild variant="ghost" className="hidden sm:inline-flex">
+              <Button asChild variant="link" className="hidden sm:flex group text-primary font-bold">
                 <Link to="/races">
-                  View all <ArrowRight className="ml-1 h-4 w-4" />
+                  View all races <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-12">
-              {/* Featured race */}
               {featured && (
                 <Link
-                  to="/races/$raceId"
+                  to="/races/"
                   params={{ raceId: featured.id }}
-                  className="group relative col-span-12 flex min-h-[22rem] flex-col justify-between overflow-hidden rounded-3xl border bg-primary p-8 text-primary-foreground shadow-elegant transition-transform hover:-translate-y-0.5 sm:p-10 lg:col-span-7"
+                  className="group relative col-span-12 flex min-h-[26rem] flex-col justify-between overflow-hidden rounded-[2rem] bg-primary p-8 text-primary-foreground shadow-elegant transition-all hover:scale-[1.01] sm:p-12 lg:col-span-8"
                 >
                   <div
-                    className="pointer-events-none absolute inset-0 opacity-50"
-                    style={{ background: "radial-gradient(60% 80% at 100% 0%, color-mix(in oklab, white 12%, transparent), transparent)" }}
+                    className="pointer-events-none absolute inset-0 opacity-40 bg-hero-gradient"
                     aria-hidden
                   />
                   <div className="relative">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                      Featured race
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-md">
+                      Featured Election
                     </span>
-                    <h3 className="mt-6 font-display text-3xl font-semibold leading-tight tracking-tight text-balance sm:text-4xl">
+                    <h3 className="mt-8 font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl max-w-xl">
                       {featured.name}
                     </h3>
                     {featured.office_description && (
-                      <p className="mt-4 max-w-lg text-white/70">
+                      <p className="mt-6 max-w-lg text-white/70 text-lg leading-relaxed">
                         {featured.office_description}
                       </p>
                     )}
                   </div>
-                  <div className="relative mt-8 flex flex-wrap items-center justify-between gap-4 text-sm text-white/70">
-                    <div className="flex flex-wrap items-center gap-4">
-                      <span className="inline-flex items-center gap-1.5">
+                  <div className="relative mt-8 flex flex-wrap items-center justify-between gap-6">
+                    <div className="flex flex-wrap items-center gap-6 text-sm font-medium text-white/80">
+                      <span className="inline-flex items-center gap-2">
                         <MapPin className="h-4 w-4" /> {featured.location}
                       </span>
                       {featured.election_date && (
-                        <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-flex items-center gap-2">
                           <CalendarDays className="h-4 w-4" />
                           {formatDate(featured.election_date)}
                         </span>
                       )}
                     </div>
-                    <span className="inline-flex items-center gap-1 font-medium text-white">
-                      Open race
-                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                    </span>
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-primary transition-transform group-hover:rotate-45">
+                      <ArrowUpRight className="h-6 w-6" />
+                    </div>
                   </div>
                 </Link>
               )}
 
-              {/* Side grid */}
-              <div className="col-span-12 grid gap-4 sm:grid-cols-2 lg:col-span-5 lg:grid-cols-1">
+              <div className="col-span-12 grid gap-6 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-1">
                 {rest.slice(0, 3).map((race) => (
                   <RaceCard key={race.id} race={race} compact />
                 ))}
               </div>
-
-              {/* Bottom row */}
-              {rest.slice(3, 7).map((race) => (
-                <div key={race.id} className="col-span-12 sm:col-span-6 lg:col-span-3">
-                  <RaceCard race={race} />
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 flex justify-center sm:hidden">
-              <Button asChild variant="outline">
-                <Link to="/races">View all races</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* HOW IT WORKS */}
-        <section className="border-b">
-          <div className="container mx-auto max-w-6xl px-4 py-24">
-            <div className="grid gap-12 lg:grid-cols-12">
-              <div className="lg:col-span-4">
-                <p className="font-display text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                  Method
-                </p>
-                <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-                  Three steps. No spin.
-                </h2>
-                <p className="mt-5 max-w-md text-muted-foreground">
-                  Every position on BallotBrief is reviewed by a human and linked
-                  back to its source. We don't rank, endorse, or recommend.
-                </p>
-              </div>
-              <ol className="grid gap-4 lg:col-span-8 sm:grid-cols-3">
-                {[
-                  { n: "01", t: "Choose a race", d: "Pick an election you care about." },
-                  { n: "02", t: "Pick an issue", d: "Housing, Taxes, Schools, Transit, and more." },
-                  { n: "03", t: "Compare with evidence", d: "Plain-English summaries with source-backed receipts." },
-                ].map((s) => (
-                  <li
-                    key={s.n}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border bg-card p-6 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
-                  >
-                    <span className="font-display text-5xl font-semibold leading-none text-primary/15">
-                      {s.n}
-                    </span>
-                    <div className="mt-12">
-                      <h3 className="font-display text-lg font-semibold">{s.t}</h3>
-                      <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        </section>
-
-        {/* TRUST */}
-        <section className="bg-muted/40">
-          <div className="container mx-auto max-w-6xl px-4 py-24">
-            <div className="mb-10 max-w-xl">
-              <p className="font-display text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-                Our promise
-              </p>
-              <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight">
-                Built on evidence, not opinion.
-              </h2>
-            </div>
-            <div className="grid gap-px overflow-hidden rounded-2xl border bg-border sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { icon: Scale, t: "Nonpartisan", d: "We don't endorse, rank, or recommend candidates." },
-                { icon: FileSearch, t: "Source-backed", d: "Every published claim links to its evidence." },
-                { icon: ShieldCheck, t: "Human review", d: "Claims are reviewed before they appear publicly." },
-                { icon: BookOpen, t: "Honest gaps", d: "When we lack evidence, we say so plainly." },
-              ].map((f) => (
-                <div key={f.t} className="bg-card p-7">
-                  <f.icon className="h-5 w-5 text-accent" />
-                  <h3 className="mt-4 font-display font-semibold">{f.t}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">{f.d}</p>
-                </div>
-              ))}
             </div>
           </div>
         </section>
 
         {/* CTA */}
-        <section className="bg-primary text-primary-foreground">
-          <div className="container mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 py-20 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                Ready to read the receipts?
-              </h2>
-              <p className="mt-2 text-white/70">
-                Browse every live race we cover.
-              </p>
-            </div>
-            <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90">
+        <section className="bg-primary text-primary-foreground py-24 relative overflow-hidden">
+          <div className="absolute inset-0 grain opacity-20" aria-hidden />
+          <div className="container mx-auto max-w-4xl px-4 text-center relative">
+            <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
+              Ready to read the receipts?
+            </h2>
+            <p className="mt-6 text-white/70 text-lg">
+              Check out every live race we cover in Morris County, NJ.
+            </p>
+            <Button asChild size="lg" className="mt-10 bg-white text-primary hover:bg-white/90 h-14 px-8 rounded-xl font-bold text-lg shadow-elegant">
               <Link to="/races">
-                Browse races <ArrowRight className="ml-1 h-4 w-4" />
+                Browse All Races <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
@@ -302,17 +207,6 @@ function Home() {
       </main>
 
       <SiteFooter />
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-transparent p-5">
-      <dt className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/55">
-        {label}
-      </dt>
-      <dd className="mt-2 font-display text-xl font-semibold text-white">{value}</dd>
     </div>
   );
 }
@@ -326,25 +220,27 @@ function RaceCard({
 }) {
   return (
     <Link
-      to="/races/$raceId"
+      to="/races/"
       params={{ raceId: race.id }}
-      className="group flex h-full flex-col justify-between rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
+      className="group flex h-full flex-col justify-between rounded-3xl border bg-card p-6 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
     >
       <div>
-        <h3 className={`font-display font-semibold leading-tight ${compact ? "text-base" : "text-lg"}`}>
+        <h3 className={cn("font-display font-bold leading-tight", compact ? "text-xl" : "text-2xl")}>
           {race.name}
         </h3>
         {race.location && (
-          <p className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3" /> {race.location}
+          <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <MapPin className="h-3.5 w-3.5 text-primary" /> {race.location}
           </p>
         )}
       </div>
-      <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-        {race.election_date ? <span>{formatDate(race.election_date)}</span> : <span />}
-        <span className="inline-flex items-center gap-1 font-medium text-primary">
-          Open
-          <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      <div className="mt-6 flex items-center justify-between text-xs font-semibold">
+        <span className="text-muted-foreground">
+          {race.election_date ? formatDate(race.election_date) : "Election Day"}
+        </span>
+        <span className="inline-flex items-center gap-1 text-primary group-hover:translate-x-1 transition-transform">
+          Open Race
+          <ArrowRight className="h-3.5 w-3.5" />
         </span>
       </div>
     </Link>
