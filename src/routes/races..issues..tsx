@@ -7,7 +7,7 @@ import { ExternalLink, Users, History, ArrowLeft } from "lucide-react";
 import { PartyBadge } from "@/components/party-badge";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/races/$raceId/issues/$issueId")({
+export const Route = createFileRoute("/races/issues/")({
   component: IssueComparison,
 });
 
