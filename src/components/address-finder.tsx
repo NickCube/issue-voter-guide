@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash, Home, Loader2 } from "lucide-react";
+import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash, Home, Loader2, ChevronRight } from "lucide-react";
 import {
   matchAddressToTowns,
   raceMatchesAddress,
@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bb.address";
 
-// Canonical municipality list for autocomplete (matches what races.location uses).
 const SUGGESTION_TOWNS = [
   "Boonton Town", "Boonton Township", "Butler Borough", "Chatham Borough",
   "Chatham Township", "Chester Borough", "Chester Township", "Denville Township",
@@ -64,15 +63,10 @@ function buildLocalSuggestions(query: string): Suggestion[] {
   return results.filter((r) => (seen.has(r.value) ? false : (seen.add(r.value), true)));
 }
 
-// Geocoding via Photon (OSM) with a Nominatim fallback. Both are free, no key.
-// Biased to Morris County, NJ.
 async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promise<Suggestion[]> {
   const q = query.trim();
   if (q.length < 3) return [];
 
-  // If the query looks like a street (starts with a number, or contains a street suffix)
-  // and doesn't already mention NJ / a town, append a Morris County NJ hint so geocoders
-  // return local results instead of random matches worldwide.
   const looksLikeStreet =
     /^\d+\s+\S+/.test(q) ||
     /\b(st|street|rd|road|ln|lane|ave|avenue|dr|drive|blvd|ct|court|way|pl|place|ter|terrace|hwy|pkwy)\b\.?/i.test(q);
@@ -81,7 +75,6 @@ async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promi
 
   const results: Suggestion[] = [];
 
-  // 1. Photon
   try {
     const url =
       `https://photon.komoot.io/api/?q=${encodeURIComponent(hinted)}` +
@@ -111,48 +104,13 @@ async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promi
     }
   } catch {}
 
-  // 2. Nominatim fallback (often better for specific house numbers)
-  if (results.length < 3) {
-    try {
-      const url =
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6` +
-        `&countrycodes=us&q=${encodeURIComponent(hinted)}`;
-      const res = await fetch(url, { signal, headers: { "Accept-Language": "en" } });
-      if (res.ok) {
-        const json = (await res.json()) as Array<{
-          display_name?: string;
-          address?: {
-            house_number?: string; road?: string;
-            city?: string; town?: string; village?: string; hamlet?: string;
-            county?: string; state?: string; postcode?: string;
-          };
-        }>;
-        for (const item of json) {
-          const a = item.address ?? {};
-          if (a.state && a.state !== "New Jersey") continue;
-          const city = a.city || a.town || a.village || a.hamlet || "";
-          const street = [a.house_number, a.road].filter(Boolean).join(" ");
-          const primary = street || city;
-          if (!primary) continue;
-          const sub = [city, a.state, a.postcode].filter(Boolean).join(", ");
-          const value = [primary, city, a.state, a.postcode].filter(Boolean).join(", ");
-          results.push({ label: primary, sub, value, kind: "address" });
-        }
-      }
-    } catch {}
-  }
-
-  // Dedupe
   const seen = new Set<string>();
   return results.filter((r) => (seen.has(r.value.toLowerCase()) ? false : (seen.add(r.value.toLowerCase()), true)));
 }
 
-
-
-
 function fmtDate(d?: string | null) {
   if (!d) return null;
-  return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
 export function AddressFinder() {
@@ -172,7 +130,6 @@ export function AddressFinder() {
     } catch {}
   }, []);
 
-  // Close suggestions on outside click
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
@@ -196,7 +153,6 @@ export function AddressFinder() {
   const [remoteSuggestions, setRemoteSuggestions] = useState<Suggestion[]>([]);
   const [searching, setSearching] = useState(false);
 
-  // Debounced street-address autocomplete via Photon.
   useEffect(() => {
     const q = input.trim();
     if (q.length < 3) {
@@ -271,188 +227,147 @@ export function AddressFinder() {
   }
 
   const resolved = address && match.detectedFrom !== "none";
-  const noMatch = address && !resolved;
 
   return (
-    <section className="border-b bg-muted/40">
-      <div className="container mx-auto max-w-6xl px-4 py-20">
-        <div className="grid gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <p className="font-display text-xs font-medium uppercase tracking-[0.22em] text-muted-foreground">
-              Personalized
-            </p>
-            <h2 className="mt-2 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-              What's on <em className="italic text-primary">your</em> ballot?
-            </h2>
-            <p className="mt-5 max-w-md text-muted-foreground">
-              Enter your address, town, or ZIP and we'll surface only the races
-              you can actually vote in — local, county, and statewide.
-            </p>
-            <p className="mt-4 text-xs text-muted-foreground">
-              We don't store your address on our servers. It stays in your browser.
-            </p>
-          </div>
-
-          <div className="lg:col-span-7">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
-              <div className="relative flex-1" ref={containerRef}>
-                <MapPin className="pointer-events-none absolute left-3 top-[1.4rem] h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={input}
-                  onChange={(e) => {
-                    setInput(e.target.value);
-                    setOpen(true);
-                    setActiveIdx(0);
-                  }}
-                  onFocus={() => setOpen(true)}
-                  onKeyDown={onKeyDown}
-                  placeholder="e.g. Morristown, 07960, or 123 Main St, Boonton NJ"
-                  className="h-12 pl-9 pr-9 text-base"
-                  aria-label="Your address, town, or ZIP"
-                  aria-autocomplete="list"
-                  aria-expanded={open && suggestions.length > 0}
-                  autoComplete="off"
-                />
-                {input && (
-                  <button
-                    type="button"
-                    onClick={clear}
-                    className="absolute right-2 top-[1.4rem] -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted"
-                    aria-label="Clear"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-
-                {open && (suggestions.length > 0 || searching) && (
-                  <ul
-                    role="listbox"
-                    className="absolute left-0 right-0 top-full z-20 mt-2 max-h-80 overflow-auto rounded-xl border bg-popover p-1 shadow-elegant"
-                  >
-                    {suggestions.map((s, i) => (
-                      <li key={`${s.kind}-${s.value}`}>
-                        <button
-                          type="button"
-                          role="option"
-                          aria-selected={i === activeIdx}
-                          onMouseEnter={() => setActiveIdx(i)}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            commit(s.value);
-                          }}
-                          className={cn(
-                            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
-                            i === activeIdx ? "bg-accent text-accent-foreground" : "hover:bg-muted",
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "flex h-7 w-7 shrink-0 items-center justify-center rounded-md",
-                              s.kind === "zip"
-                                ? "bg-primary/10 text-primary"
-                                : s.kind === "address"
-                                ? "bg-accent/15 text-accent-foreground"
-                                : "bg-muted text-muted-foreground",
-                            )}
-                          >
-                            {s.kind === "zip" ? (
-                              <Hash className="h-3.5 w-3.5" />
-                            ) : s.kind === "address" ? (
-                              <Home className="h-3.5 w-3.5" />
-                            ) : (
-                              <MapPin className="h-3.5 w-3.5" />
-                            )}
-                          </span>
-
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-medium">{s.label}</span>
-                            <span className="block truncate text-xs text-muted-foreground">{s.sub}</span>
-                          </span>
-                        </button>
-                      </li>
-                    ))}
-                    {searching && (
-                      <li className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground">
-                        <Loader2 className="h-3 w-3 animate-spin" /> Searching addresses…
-                      </li>
-                    )}
-                    {!searching && suggestions.length === 0 && (
-                      <li className="px-3 py-2 text-xs text-muted-foreground">No matches</li>
-                    )}
-                  </ul>
-                )}
-              </div>
-              <Button type="submit" size="lg" className="h-12">
-                <Search className="mr-1 h-4 w-4" />
-                Find my races
-              </Button>
-            </form>
-
-
-
-            {resolved && (
-              <div className="mt-6">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm text-muted-foreground">
-                    Showing <span className="font-semibold text-foreground">{filtered.length}</span>{" "}
-                    {filtered.length === 1 ? "race" : "races"} for{" "}
-                    <span className="font-semibold text-foreground">{match.display}</span>
-                    {match.countyMatch ? " · plus county & statewide" : ""}
-                  </p>
-                </div>
-
-                {filtered.length === 0 ? (
-                  <div className="rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
-                    No races found for that location yet. We currently cover Morris County, NJ.
-                  </div>
-                ) : (
-                  <ul className="grid gap-3 sm:grid-cols-2">
-                    {filtered.map((r) => (
-                      <li key={r.id}>
-                        <Link
-                          to="/races/$raceId"
-                          params={{ raceId: r.id }}
-                          className="group flex h-full flex-col justify-between rounded-2xl border bg-card p-5 shadow-card transition-all hover:-translate-y-0.5 hover:border-primary/40"
-                        >
-                          <div>
-                            <h3 className="font-display text-base font-semibold leading-tight">
-                              {r.name}
-                            </h3>
-                            {r.location && (
-                              <p className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
-                                <MapPin className="h-3 w-3" /> {r.location}
-                              </p>
-                            )}
-                          </div>
-                          <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                            {r.election_date ? (
-                              <span className="inline-flex items-center gap-1">
-                                <CalendarDays className="h-3 w-3" />
-                                {fmtDate(r.election_date)}
-                              </span>
-                            ) : <span />}
-                            <span className="inline-flex items-center gap-1 font-medium text-primary">
-                              Open
-                              <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                            </span>
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+    <div className="w-full">
+      <div className="relative rounded-[2.5rem] border-4 border-primary/20 bg-card p-2 shadow-elegant sm:p-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
+          <div className="relative flex-1" ref={containerRef}>
+            <MapPin className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
+            <Input
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                setOpen(true);
+                setActiveIdx(0);
+              }}
+              onFocus={() => setOpen(true)}
+              onKeyDown={onKeyDown}
+              placeholder="Enter your town or ZIP (e.g. Morristown)"
+              className="h-14 border-none bg-transparent pl-12 pr-12 text-lg focus-visible:ring-0 placeholder:text-muted-foreground/60"
+              aria-label="Your address, town, or ZIP"
+              autoComplete="off"
+            />
+            {input && (
+              <button
+                type="button"
+                onClick={clear}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
+                aria-label="Clear"
+              >
+                <X className="h-4 w-4" />
+              </button>
             )}
 
-            {noMatch && (
-              <div className="mt-6 rounded-2xl border bg-card p-6 text-sm text-muted-foreground">
-                We couldn't recognize that address. Try a town name (e.g. "Morristown")
-                or a 5-digit ZIP code. Currently covering Morris County, NJ.
+            {open && (suggestions.length > 0 || searching) && (
+              <ul
+                role="listbox"
+                className="absolute left-0 right-0 top-full z-50 mt-4 max-h-[20rem] overflow-auto rounded-3xl border bg-popover p-2 shadow-elegant animate-in fade-in slide-in-from-top-2"
+              >
+                {suggestions.map((s, i) => (
+                  <li key={`${s.kind}-${s.value}`}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={i === activeIdx}
+                      onMouseEnter={() => setActiveIdx(i)}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        commit(s.value);
+                      }}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all",
+                        i === activeIdx ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-muted",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
+                          i === activeIdx ? "bg-white/20" : "bg-primary/5 text-primary",
+                        )}
+                      >
+                        {s.kind === "zip" ? (
+                          <Hash className="h-4 w-4" />
+                        ) : s.kind === "address" ? (
+                          <Home className="h-4 w-4" />
+                        ) : (
+                          <MapPin className="h-4 w-4" />
+                        )}
+                      </span>
+
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-bold tracking-tight">{s.label}</span>
+                        <span className={cn("block truncate text-xs", i === activeIdx ? "text-white/70" : "text-muted-foreground")}>
+                          {s.sub}
+                        </span>
+                      </span>
+                    </button>
+                  </li>
+                ))}
+                {searching && (
+                  <li className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" /> Searching Morris County...
+                  </li>
+                )}
+              </ul>
+            )}
+          </div>
+          <Button type="submit" size="lg" className="h-14 rounded-full px-8 text-lg font-bold shadow-md">
+            <Search className="mr-2 h-5 w-5" />
+            Find Ballot
+          </Button>
+        </form>
+      </div>
+
+      {resolved && (
+        <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="mb-4 flex items-center justify-between px-2">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
+              {filtered.length} {filtered.length === 1 ? "Race" : "Races"} for {match.display}
+            </h3>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filtered.map((r) => (
+              <Link
+                key={r.id}
+                to="/races/"
+                params={{ raceId: r.id }}
+                className="group flex items-center justify-between rounded-3xl border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
+              >
+                <div className="min-w-0">
+                  <h4 className="truncate font-display text-lg font-bold">{r.name}</h4>
+                  <div className="mt-1 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
+                    <span className="flex items-center gap-1 uppercase tracking-wider">
+                      <MapPin className="h-3 w-3 text-primary" /> {r.location}
+                    </span>
+                    {r.election_date && (
+                      <span className="flex items-center gap-1">
+                        <CalendarDays className="h-3 w-3" /> {fmtDate(r.election_date)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-primary/10 bg-primary/5 text-primary transition-transform group-hover:bg-primary group-hover:text-primary-foreground">
+                  <ChevronRight className="h-5 w-5" />
+                </div>
+              </Link>
+            ))}
+            {filtered.length === 0 && (
+              <div className="col-span-2 rounded-3xl border border-dashed p-10 text-center">
+                <p className="text-sm font-medium text-muted-foreground">
+                  No specific local races found for this address yet.
+                  <br />
+                  We are currently expanding coverage across Morris County.
+                </p>
+                <Button asChild variant="link" className="mt-2 text-primary">
+                  <Link to="/races">View all NJ races</Link>
+                </Button>
               </div>
             )}
           </div>
         </div>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }
