@@ -34,6 +34,10 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
+  --color-democrat: var(--democrat);
+  --color-democrat-foreground: var(--democrat-foreground);
+  --color-republican: var(--republican);
+  --color-republican-foreground: var(--republican-foreground);
   --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Space Grotesk", ui-serif, Georgia, serif;
@@ -76,6 +80,10 @@
   --warning-foreground: oklch(0.20 0.03 250);
   --info: oklch(0.55 0.13 255);
   --info-foreground: oklch(0.99 0 0);
+  --democrat: oklch(0.55 0.13 245);
+  --democrat-foreground: oklch(0.35 0.12 245);
+  --republican: oklch(0.55 0.18 25);
+  --republican-foreground: oklch(0.40 0.15 25);
 
   --navy-deep: oklch(0.22 0.07 260);
   --navy-mid: oklch(0.32 0.09 258);
@@ -122,6 +130,10 @@
   --warning-foreground: oklch(0.15 0.02 250);
   --info: oklch(0.68 0.09 230);
   --info-foreground: oklch(0.15 0.02 250);
+  --democrat: oklch(0.68 0.10 245);
+  --democrat-foreground: oklch(0.90 0.06 245);
+  --republican: oklch(0.68 0.14 25);
+  --republican-foreground: oklch(0.91 0.07 25);
 }
 
 @layer base {
@@ -132,7 +144,7 @@
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.025em; }
+  h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: 0; }
 }
 
 @layer utilities {
