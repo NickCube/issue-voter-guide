@@ -8,51 +8,21 @@ type RacePin = {
   election_date: string | null;
 };
 
-// Approximate centroids for Morris County, NJ municipalities + statewide markers.
+// Approximate centroids for Somerset County, NJ municipalities and districts.
 const COORDS: Record<string, [number, number]> = {
-  "morris county, nj": [40.8, -74.55],
-  "new jersey": [40.5, -74.4],
-  "new jersey 11th congressional district (incl. morris county)": [40.85, -74.45],
-  "parsippany-troy hills, nj": [40.8579, -74.426],
-  "morristown, nj": [40.7968, -74.4815],
-  "morris township, nj": [40.8, -74.5],
-  "morris plains, nj": [40.8373, -74.4807],
-  "mount olive, nj": [40.8779, -74.7263],
-  "madison, nj": [40.7598, -74.4171],
-  "dover, nj": [40.8843, -74.5621],
-  "boonton town, nj": [40.9026, -74.4071],
-  "boonton township, nj": [40.9181, -74.4221],
-  "butler borough, nj": [40.9985, -74.3404],
-  "chatham borough, nj": [40.7406, -74.3843],
-  "chatham township, nj": [40.7301, -74.4],
-  "chester borough, nj": [40.7848, -74.6957],
-  "chester township, nj": [40.79, -74.71],
-  "denville township, nj": [40.8918, -74.4815],
-  "east hanover township, nj": [40.8167, -74.3645],
-  "florham park borough, nj": [40.7884, -74.388],
-  "hanover township, nj": [40.8175, -74.3849],
-  "harding township, nj": [40.7501, -74.5279],
-  "jefferson township, nj": [40.9779, -74.5946],
-  "kinnelon borough, nj": [40.9876, -74.3676],
-  "lincoln park borough, nj": [40.9237, -74.305],
-  "long hill township, nj": [40.6884, -74.486],
-  "mendham borough, nj": [40.7754, -74.6004],
-  "mendham township, nj": [40.7773, -74.6262],
-  "mine hill township, nj": [40.8801, -74.6063],
-  "montville township, nj": [40.913, -74.376],
-  "morris plains borough, nj": [40.8373, -74.4807],
-  "mount arlington borough, nj": [40.9237, -74.6332],
-  "mountain lakes borough, nj": [40.8895, -74.4351],
-  "netcong borough, nj": [40.8984, -74.7077],
-  "pequannock township, nj": [40.9612, -74.3001],
-  "randolph township, nj": [40.8487, -74.5779],
-  "riverdale borough, nj": [40.9929, -74.3104],
-  "rockaway borough, nj": [40.9012, -74.5141],
-  "rockaway township, nj": [40.9376, -74.5304],
-  "roxbury township, nj": [40.8723, -74.6532],
-  "victory gardens borough, nj": [40.8773, -74.5421],
-  "washington township, nj": [40.7848, -74.7732],
-  "wharton borough, nj": [40.8959, -74.5824],
+  "somerset county, nj": [40.5633, -74.6168], "bedminster, nj": [40.6807, -74.6454],
+  "bernards, nj": [40.6834, -74.5777], "bernardsville, nj": [40.7187, -74.5693],
+  "bound brook, nj": [40.5684, -74.5385], "branchburg, nj": [40.5687, -74.7018],
+  "bridgewater, nj": [40.5939, -74.6049], "far hills, nj": [40.684, -74.6357],
+  "franklin, nj": [40.4776, -74.5403], "green brook, nj": [40.6032, -74.4718],
+  "hillsborough, nj": [40.4976, -74.6708], "manville, nj": [40.54, -74.5877],
+  "millstone, nj": [40.4987, -74.5904], "montgomery, nj": [40.4257, -74.6488],
+  "north plainfield, nj": [40.6301, -74.4274], "peapack-gladstone, nj": [40.7168, -74.6568],
+  "raritan, nj": [40.5695, -74.6329], "rocky hill, nj": [40.4009, -74.6407],
+  "somerville, nj": [40.5743, -74.6099], "south bound brook, nj": [40.5534, -74.5315],
+  "warren, nj": [40.6342, -74.5007], "watchung, nj": [40.6379, -74.4507],
+  "new jersey 7th district (incl. somerset county)": [40.62, -74.65],
+  "new jersey 12th district (incl. somerset county)": [40.43, -74.56],
 };
 
 function lookup(location: string | null): [number, number] | null {
@@ -121,7 +91,7 @@ export function RacesMap({ races }: { races: RacePin[] }) {
   return (
     <div className="overflow-hidden rounded-xl border shadow-sm">
       <MapContainer
-        center={[40.83, -74.5]}
+        center={[40.56, -74.59]}
         zoom={10}
         scrollWheelZoom={false}
         style={{ height: 420, width: "100%" }}
