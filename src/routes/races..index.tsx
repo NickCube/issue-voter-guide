@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PartyBadge } from "@/components/party-badge";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/races/$raceId/")({
+export const Route = createFileRoute("/races/")({
   component: RaceDetail,
 });
 

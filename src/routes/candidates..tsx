@@ -6,7 +6,7 @@ import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ExternalLink, Globe, CalendarDays, History } from "lucide-react";
 import { PartyBadge } from "@/components/party-badge";
 
-export const Route = createFileRoute("/candidates/$candidateId")({
+export const Route = createFileRoute("/candidates/")({
   component: CandidateProfile,
 });
 
