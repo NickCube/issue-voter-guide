@@ -7,6 +7,14 @@ import { ExternalLink, Globe } from "lucide-react";
 import { PartyBadge } from "@/components/party-badge";
 
 export const Route = createFileRoute("/candidates/$candidateId")({
+  head: () => ({ meta: [
+    { title: "Verified Candidate — BallotBrief" },
+    { name: "description", content: "Review a verified Somerset County primary candidate and source-backed positions." },
+    { property: "og:title", content: "Verified Candidate — BallotBrief" },
+    { property: "og:description", content: "Candidate filing details, documented positions, and original sources." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ]}),
   component: CandidateProfile,
 });
 
@@ -20,12 +28,14 @@ function CandidateProfile() {
         .from("candidates")
         .select("*, races(id, name)")
         .eq("id", candidateId)
+        .eq("is_verified", true)
         .maybeSingle();
       const claims = await supabase
         .from("position_claims")
         .select("*, issues(id, name), sources(*)")
         .eq("candidate_id", candidateId)
-        .eq("status", "Approved");
+        .eq("status", "Approved")
+        .not("source_id", "is", null);
       return { candidate: cand.data, claims: claims.data ?? [] };
     },
   });
@@ -100,7 +110,7 @@ function CandidateProfile() {
           <div className="space-y-4">
             {data!.claims.length === 0 && (
               <p className="rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-                No approved positions on file yet.
+                 No verified public positions found. We do not infer a position from party affiliation.
               </p>
             )}
             {data!.claims.map((cl) => (

@@ -7,6 +7,14 @@ import { ExternalLink } from "lucide-react";
 import { PartyBadge } from "@/components/party-badge";
 
 export const Route = createFileRoute("/races/$raceId/issues/$issueId")({
+  head: () => ({ meta: [
+    { title: "Candidate Issue Comparison — BallotBrief" },
+    { name: "description", content: "Compare source-backed positions from verified Somerset County primary candidates." },
+    { property: "og:title", content: "Candidate Issue Comparison — BallotBrief" },
+    { property: "og:description", content: "Read candidate positions side by side with original evidence." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ]}),
   component: IssueComparison,
 });
 
@@ -17,14 +25,15 @@ function IssueComparison() {
     queryKey: ["compare", raceId, issueId],
     queryFn: async () => {
       const [race, issue, candidates, claims] = await Promise.all([
-        supabase.from("races").select("id, name").eq("id", raceId).maybeSingle(),
+        supabase.from("races").select("id, name").eq("id", raceId).eq("is_verified", true).maybeSingle(),
         supabase.from("issues").select("*").eq("id", issueId).maybeSingle(),
-        supabase.from("candidates").select("*").eq("race_id", raceId).order("name"),
+        supabase.from("candidates").select("*").eq("race_id", raceId).eq("is_verified", true).order("name"),
         supabase
           .from("position_claims")
           .select("*, sources(*)")
           .eq("issue_id", issueId)
-          .eq("status", "Approved"),
+          .eq("status", "Approved")
+          .not("source_id", "is", null),
       ]);
       return {
         race: race.data,
@@ -152,7 +161,7 @@ function IssueComparison() {
                   </>
                 ) : (
                   <p className="mt-4 rounded-lg bg-muted/50 p-4 text-sm text-muted-foreground">
-                    No clear public position found.
+                    No verified public position found. We do not infer a position from party affiliation.
                   </p>
                 )}
               </article>

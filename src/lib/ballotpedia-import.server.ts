@@ -235,7 +235,9 @@ export async function saveParsedRace(
         location: parsed.race.location ?? null,
         election_date: parsed.race.election_date || null,
         office_description: parsed.race.office_description ?? null,
-        status: "active",
+        status: "pending_review",
+        is_verified: false,
+        election_type: "unknown",
       })
       .select("id")
       .single();

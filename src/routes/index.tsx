@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { AddressFinder } from "@/components/address-finder";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,8 +24,12 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Nonpartisan candidate comparison by issue. Plain-English summaries, source links, and verified positions.",
+          "Verified Somerset County primary candidates and source-backed positions for June 2, 2026.",
       },
+      { property: "og:title", content: "BallotBrief — Somerset County 2026 Primary" },
+      { property: "og:description", content: "Find verified Somerset County primary candidates and source-backed positions." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Home,
@@ -45,7 +50,8 @@ function Home() {
     queryFn: async () => {
       const { data } = await supabase
         .from("races")
-        .select("id, name, location, election_date, office_description")
+        .select("id, name, location, election_date, office_description, is_verified")
+        .eq("is_verified", true)
         .order("election_date", { ascending: true })
         .order("name", { ascending: true });
       return data ?? [];
@@ -73,16 +79,16 @@ function Home() {
           <div className="relative container mx-auto max-w-5xl px-4 text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-md">
               <CheckCircle2 className="h-3 w-3 text-success" />
-              Human-Verified · Nonpartisan
+              Somerset County · June 2, 2026
             </span>
             <h1 className="mt-8 font-display text-5xl font-bold leading-[1.05] tracking-tight text-balance sm:text-6xl lg:text-8xl">
-              Know the candidates
+              Know your primary
               <br />
               <span className="italic text-white/60">before you vote.</span>
             </h1>
             <p className="mx-auto mt-8 max-w-2xl text-lg text-white/70 leading-relaxed sm:text-xl">
-              Plain-English candidate summaries, source links, and verified 
-              position labels. Built for voters who want facts, not spin.
+              See verified Democratic and Republican candidate filings, then
+              compare only the positions tied to an original source.
             </p>
           </div>
         </section>
@@ -101,7 +107,7 @@ function Home() {
               {[
                 { icon: Scale, t: "Nonpartisan", d: "We never endorse, rank, or recommend candidates." },
                 { icon: FileSearch, t: "Source-backed", d: "Every published claim links directly to its evidence." },
-                { icon: ShieldCheck, t: "Human Review", d: "A human verify every position before it goes live." },
+                 { icon: ShieldCheck, t: "Verified filings", d: "The public roster comes from the Somerset County Clerk." },
                 { icon: BookOpen, t: "Honest Gaps", d: "If evidence is missing, we say so plainly." },
               ].map((f) => (
                 <div key={f.t} className="bg-card p-8 group transition-colors hover:bg-muted/30">
@@ -122,10 +128,10 @@ function Home() {
             <div className="mb-12 flex items-end justify-between gap-6">
               <div>
                 <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                  Election Coverage
+                   June 2 primary
                 </p>
                 <h2 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
-                  On your ballot
+                   Verified races
                 </h2>
               </div>
               <Button asChild variant="link" className="hidden sm:flex group text-primary font-bold">
@@ -138,7 +144,7 @@ function Home() {
             <div className="grid gap-6 lg:grid-cols-12">
               {featured && (
                 <Link
-                  to="/races/"
+                   to="/races/$raceId"
                   params={{ raceId: featured.id }}
                   className="group relative col-span-12 flex min-h-[26rem] flex-col justify-between overflow-hidden rounded-[2rem] bg-primary p-8 text-primary-foreground shadow-elegant transition-all hover:scale-[1.01] sm:p-12 lg:col-span-8"
                 >
@@ -148,7 +154,7 @@ function Home() {
                   />
                   <div className="relative">
                     <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-md">
-                      Featured Election
+                       Clerk-verified filing
                     </span>
                     <h3 className="mt-8 font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl max-w-xl">
                       {featured.name}
@@ -195,7 +201,7 @@ function Home() {
               Ready to read the receipts?
             </h2>
             <p className="mt-6 text-white/70 text-lg">
-              Check out every live race we cover in Morris County, NJ.
+               Browse every verified race in the Somerset County primary.
             </p>
             <Button asChild size="lg" className="mt-10 bg-white text-primary hover:bg-white/90 h-14 px-8 rounded-xl font-bold text-lg shadow-elegant">
               <Link to="/races">
@@ -220,7 +226,7 @@ function RaceCard({
 }) {
   return (
     <Link
-      to="/races/"
+      to="/races/$raceId"
       params={{ raceId: race.id }}
       className="group flex h-full flex-col justify-between rounded-3xl border bg-card p-6 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
     >

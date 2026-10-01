@@ -8,24 +8,14 @@ import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash, Home, Loader2, Che
 import {
   matchAddressToTowns,
   raceMatchesAddress,
-  MORRIS_ZIP_TO_TOWN,
+  SOMERSET_ZIP_TO_TOWN,
+  SOMERSET_TOWNS,
 } from "@/lib/address-match";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "bb.address";
 
-const SUGGESTION_TOWNS = [
-  "Boonton Town", "Boonton Township", "Butler Borough", "Chatham Borough",
-  "Chatham Township", "Chester Borough", "Chester Township", "Denville Township",
-  "Dover", "East Hanover Township", "Florham Park Borough", "Hanover Township",
-  "Harding Township", "Jefferson Township", "Kinnelon Borough", "Lincoln Park Borough",
-  "Long Hill Township", "Madison", "Mendham Borough", "Mendham Township",
-  "Mine Hill Township", "Montville Township", "Morris Plains Borough",
-  "Morris Township", "Morristown", "Mount Arlington Borough", "Mount Olive",
-  "Mountain Lakes", "Netcong", "Parsippany-Troy Hills", "Pequannock", "Randolph",
-  "Riverdale", "Rockaway", "Rockaway Township", "Roxbury", "Victory Gardens",
-  "Washington Township", "Wharton",
-];
+const SUGGESTION_TOWNS = [...SOMERSET_TOWNS];
 
 type Suggestion = {
   label: string;
@@ -44,9 +34,9 @@ function buildLocalSuggestions(query: string): Suggestion[] {
   const results: Suggestion[] = [];
 
   if (/^\d{2,5}$/.test(needle)) {
-    for (const [zip, town] of Object.entries(MORRIS_ZIP_TO_TOWN)) {
+    for (const [zip, town] of Object.entries(SOMERSET_ZIP_TO_TOWN)) {
       if (zip.startsWith(needle)) {
-        results.push({ label: zip, sub: `${town}, NJ`, value: zip, kind: "zip" });
+        results.push({ label: zip, sub: `${town}, Somerset County`, value: zip, kind: "zip" });
         if (results.length >= 5) break;
       }
     }
@@ -54,7 +44,7 @@ function buildLocalSuggestions(query: string): Suggestion[] {
 
   for (const town of SUGGESTION_TOWNS) {
     if (town.toLowerCase().includes(needle)) {
-      results.push({ label: town, sub: "Morris County, NJ", value: `${town}, NJ`, kind: "town" });
+      results.push({ label: town, sub: "Somerset County, NJ", value: `${town}, NJ`, kind: "town" });
       if (results.length >= 6) break;
     }
   }
@@ -71,14 +61,14 @@ async function fetchStreetSuggestions(query: string, signal: AbortSignal): Promi
     /^\d+\s+\S+/.test(q) ||
     /\b(st|street|rd|road|ln|lane|ave|avenue|dr|drive|blvd|ct|court|way|pl|place|ter|terrace|hwy|pkwy)\b\.?/i.test(q);
   const mentionsNJ = /\bnj\b|new jersey/i.test(q);
-  const hinted = looksLikeStreet && !mentionsNJ ? `${q}, Morris County, NJ` : q;
+  const hinted = looksLikeStreet && !mentionsNJ ? `${q}, Somerset County, NJ` : q;
 
   const results: Suggestion[] = [];
 
   try {
     const url =
       `https://photon.komoot.io/api/?q=${encodeURIComponent(hinted)}` +
-      `&lat=40.7968&lon=-74.4815&zoom=12&limit=8&lang=en`;
+      `&lat=40.5633&lon=-74.6168&zoom=11&limit=8&lang=en`;
     const res = await fetch(url, { signal });
     if (res.ok) {
       const json = (await res.json()) as {
@@ -143,7 +133,8 @@ export function AddressFinder() {
     queryFn: async () => {
       const { data } = await supabase
         .from("races")
-        .select("id, name, location, election_date, office_description")
+        .select("id, name, location, election_date, office_description, is_verified")
+        .eq("is_verified", true)
         .order("election_date", { ascending: true });
       return data ?? [];
     },
@@ -243,7 +234,7 @@ export function AddressFinder() {
               }}
               onFocus={() => setOpen(true)}
               onKeyDown={onKeyDown}
-              placeholder="Enter your town or ZIP (e.g. Morristown)"
+              placeholder="Enter your town, ZIP, or street address"
               className="h-14 border-none bg-transparent pl-12 pr-12 text-lg focus-visible:ring-0 placeholder:text-muted-foreground/60"
               aria-label="Your address, town, or ZIP"
               autoComplete="off"
@@ -306,7 +297,7 @@ export function AddressFinder() {
                 ))}
                 {searching && (
                   <li className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" /> Searching Morris County...
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" /> Searching Somerset County...
                   </li>
                 )}
               </ul>
@@ -331,7 +322,7 @@ export function AddressFinder() {
             {filtered.map((r) => (
               <Link
                 key={r.id}
-                to="/races/"
+                to="/races/$raceId"
                 params={{ raceId: r.id }}
                 className="group flex items-center justify-between rounded-3xl border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
               >
@@ -358,10 +349,10 @@ export function AddressFinder() {
                 <p className="text-sm font-medium text-muted-foreground">
                   No specific local races found for this address yet.
                   <br />
-                  We are currently expanding coverage across Morris County.
+                  Only verified Somerset County primary races are shown.
                 </p>
                 <Button asChild variant="link" className="mt-2 text-primary">
-                  <Link to="/races">View all NJ races</Link>
+                  <Link to="/races">View all verified races</Link>
                 </Button>
               </div>
             )}

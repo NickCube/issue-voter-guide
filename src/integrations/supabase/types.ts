@@ -49,33 +49,39 @@ export type Database = {
           bio: string | null
           created_at: string
           id: string
+          is_verified: boolean
           name: string
           party_or_affiliation: string | null
           photo_url: string | null
           race_id: string
           updated_at: string
+          verified_at: string | null
           website_url: string | null
         }
         Insert: {
           bio?: string | null
           created_at?: string
           id?: string
+          is_verified?: boolean
           name: string
           party_or_affiliation?: string | null
           photo_url?: string | null
           race_id: string
           updated_at?: string
+          verified_at?: string | null
           website_url?: string | null
         }
         Update: {
           bio?: string | null
           created_at?: string
           id?: string
+          is_verified?: boolean
           name?: string
           party_or_affiliation?: string | null
           photo_url?: string | null
           race_id?: string
           updated_at?: string
+          verified_at?: string | null
           website_url?: string | null
         }
         Relationships: [
@@ -194,32 +200,44 @@ export type Database = {
         Row: {
           created_at: string
           election_date: string | null
+          election_type: string
+          filing_instruction: string | null
           id: string
+          is_verified: boolean
           location: string | null
           name: string
           office_description: string | null
           status: string
           updated_at: string
+          verified_at: string | null
         }
         Insert: {
           created_at?: string
           election_date?: string | null
+          election_type?: string
+          filing_instruction?: string | null
           id?: string
+          is_verified?: boolean
           location?: string | null
           name: string
           office_description?: string | null
           status?: string
           updated_at?: string
+          verified_at?: string | null
         }
         Update: {
           created_at?: string
           election_date?: string | null
+          election_type?: string
+          filing_instruction?: string | null
           id?: string
+          is_verified?: boolean
           location?: string | null
           name?: string
           office_description?: string | null
           status?: string
           updated_at?: string
+          verified_at?: string | null
         }
         Relationships: []
       }
