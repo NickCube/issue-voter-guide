@@ -297,7 +297,7 @@ export function AddressFinder() {
                 ))}
                 {searching && (
                   <li className="flex items-center gap-3 px-4 py-3 text-sm text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" /> Searching Morris County...
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" /> Searching Somerset County...
                   </li>
                 )}
               </ul>
@@ -322,7 +322,7 @@ export function AddressFinder() {
             {filtered.map((r) => (
               <Link
                 key={r.id}
-                to="/races/"
+                to="/races/$raceId"
                 params={{ raceId: r.id }}
                 className="group flex items-center justify-between rounded-3xl border bg-card p-5 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
               >
@@ -349,10 +349,10 @@ export function AddressFinder() {
                 <p className="text-sm font-medium text-muted-foreground">
                   No specific local races found for this address yet.
                   <br />
-                  We are currently expanding coverage across Morris County.
+                  Only verified Somerset County primary races are shown.
                 </p>
                 <Button asChild variant="link" className="mt-2 text-primary">
-                  <Link to="/races">View all NJ races</Link>
+                  <Link to="/races">View all verified races</Link>
                 </Button>
               </div>
             )}

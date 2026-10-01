@@ -15,7 +15,7 @@ export function SiteHeader() {
               BallotBrief
             </span>
             <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              Source-backed
+              Somerset 2026 · Verified
             </span>
           </div>
         </Link>
@@ -95,8 +95,8 @@ export function SiteFooter() {
               BallotBrief
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground leading-relaxed">
-              Nonpartisan candidate comparison by issue. We believe every voter 
-              deserves plain-English summaries and the original receipts.
+               Verified Somerset County primary filings with plain-English,
+               source-backed candidate positions.
             </p>
           </div>
           <div>
@@ -116,7 +116,7 @@ export function SiteFooter() {
           </div>
         </div>
         <div className="mt-16 border-t pt-8 text-center text-[11px] font-medium uppercase tracking-widest text-muted-foreground/60">
-          © {new Date().getFullYear()} BallotBrief · All Evidence Reviewed
+           © {new Date().getFullYear()} BallotBrief · Nonpartisan · No endorsements
         </div>
       </div>
     </footer>
