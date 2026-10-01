@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { AddressFinder } from "@/components/address-finder";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -225,7 +226,7 @@ function RaceCard({
 }) {
   return (
     <Link
-      to="/races/"
+      to="/races/$raceId"
       params={{ raceId: race.id }}
       className="group flex h-full flex-col justify-between rounded-3xl border bg-card p-6 shadow-card transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-elegant"
     >
