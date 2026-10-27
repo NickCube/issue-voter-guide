@@ -101,7 +101,12 @@ function Home() {
               <div className="border-l-4 border-success pl-4"><MapPin className="h-5 w-5 text-success" /><h3 className="mt-3 font-semibold">In-person early voting</h3><p className="mt-2 text-sm">October 24–November 1</p><p className="mt-1 text-sm text-muted-foreground">Mon–Sat: 10 a.m.–8 p.m.<br />Sunday: 10 a.m.–6 p.m.</p><Button asChild variant="link" className="mt-2 h-auto px-0"><a href="https://www.nj.gov/state/elections/vote-early-voting.shtml" target="_blank" rel="noopener noreferrer">Find early voting locations <ArrowUpRight className="h-4 w-4" /></a></Button></div>
               <div className="border-l-4 border-warning pl-4"><FileSearch className="h-5 w-5 text-warning" /><h3 className="mt-3 font-semibold">Vote by mail</h3><p className="mt-2 text-sm">Apply by mail by October 27.</p><p className="mt-1 text-sm text-muted-foreground">In-person application deadline: November 2 at 3 p.m.</p><Button asChild variant="link" className="mt-2 h-auto px-0"><a href="https://www.nj.gov/state/elections/vote-3-ways-to-vote.shtml" target="_blank" rel="noopener noreferrer">Official ballot instructions <ArrowUpRight className="h-4 w-4" /></a></Button></div>
             </div>
-            <p className="mt-6 border-t pt-4 text-sm text-muted-foreground">Sources: New Jersey Division of Elections. Checked October 27, 2026. November race and candidate records are not yet verified in BallotBrief; use official election materials for your general-election ballot.</p>
+            <div className="mt-6 flex flex-wrap gap-3 border-t pt-4">
+              <Button asChild variant="outline"><a href="https://www.somersetcountynj.gov/government/elected-officials/county-clerk/election-division" target="_blank" rel="noopener noreferrer">County ballots & election information <ArrowUpRight className="h-4 w-4" /></a></Button>
+              <Button asChild variant="outline"><a href="https://www.somersetcountynj.gov/government/affiliated-agencies/election-board/polling-place-locator" target="_blank" rel="noopener noreferrer">Find your polling place <MapPin className="h-4 w-4" /></a></Button>
+              <Button asChild variant="outline"><a href="https://nj.gov/state/elections/election-information-2026.shtml" target="_blank" rel="noopener noreferrer">Official November candidate lists <FileSearch className="h-4 w-4" /></a></Button>
+            </div>
+            <p className="mt-6 text-sm text-muted-foreground">Sources: New Jersey Division of Elections and Somerset County. Checked October 27, 2026. November race and candidate records are not yet verified in BallotBrief; use official election materials for your general-election ballot.</p>
           </div>
         </section>
 

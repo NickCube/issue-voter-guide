@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Add official November election resources and distinguish the June archive
-- [ ] Check November links and public page rendering
+- [x] Add official November election resources and distinguish the June archive
+- [x] Check official source references and live public page rendering
 
 - [x] Add verified-only database rules for races, candidates, and positions
 - [x] Centralize Somerset primary labels and voter-facing data helpers
