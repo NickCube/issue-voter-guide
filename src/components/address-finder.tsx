@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Search, ArrowUpRight, CalendarDays, X, Hash, Home, Loader2, ChevronRight } from "lucide-react";
 import {
   matchAddressToTowns,
-  raceMatchesAddress,
+  matchingElectionRaces,
   SOMERSET_ZIP_TO_TOWN,
   SOMERSET_TOWNS,
 } from "@/lib/address-match";
@@ -104,6 +104,7 @@ function fmtDate(d?: string | null) {
 }
 
 export function AddressFinder() {
+  const [election, setElection] = useState<"general" | "primary">("general");
   const [input, setInput] = useState("");
   const [address, setAddress] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -128,14 +129,15 @@ export function AddressFinder() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const { data: races = [] } = useQuery({
-    queryKey: ["address-finder-races"],
+  const { data: races = [], isLoading, isError } = useQuery({
+    queryKey: ["address-finder-races", "election-aware"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("races")
-        .select("id, name, location, election_date, office_description, is_verified")
+        .select("id, name, location, election_date, office_description, is_verified, election_type")
         .eq("is_verified", true)
         .order("election_date", { ascending: true });
+      if (error) throw error;
       return data ?? [];
     },
   });
@@ -146,8 +148,8 @@ export function AddressFinder() {
 
   useEffect(() => {
     const q = input.trim();
-    if (q.length < 3) {
-      setRemoteSuggestions([]);
+    setRemoteSuggestions([]);
+    if (q.length < 3 || !/\d+\s+\S+/.test(q)) {
       setSearching(false);
       return;
     }
@@ -155,6 +157,7 @@ export function AddressFinder() {
     setSearching(true);
     const t = setTimeout(async () => {
       const results = await fetchStreetSuggestions(q, controller.signal);
+      if (controller.signal.aborted) return;
       setRemoteSuggestions(results);
       setSearching(false);
     }, 250);
@@ -173,8 +176,8 @@ export function AddressFinder() {
   }, [localSuggestions, remoteSuggestions]);
   const match = useMemo(() => matchAddressToTowns(address), [address]);
   const filtered = useMemo(
-    () => (address ? races.filter((r) => raceMatchesAddress(r.location, match)) : []),
-    [address, races, match],
+    () => matchingElectionRaces(races, address, election),
+    [address, races, election],
   );
 
   function commit(value: string) {
@@ -190,7 +193,7 @@ export function AddressFinder() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (open && suggestions[activeIdx]) {
+    if (open && matchAddressToTowns(input).detectedFrom === "none" && suggestions[activeIdx]) {
       commit(suggestions[activeIdx].value);
     } else {
       commit(input);
@@ -221,6 +224,10 @@ export function AddressFinder() {
 
   return (
     <div className="w-full">
+      <div className="mb-4 flex flex-wrap gap-2" aria-label="Election">
+        <Button variant={election === "general" ? "default" : "outline"} aria-pressed={election === "general"} onClick={() => setElection("general")}>November 3 general</Button>
+        <Button variant={election === "primary" ? "default" : "outline"} aria-pressed={election === "primary"} onClick={() => setElection("primary")}>June 2 archive</Button>
+      </div>
       <div className="relative rounded-[2.5rem] border-4 border-primary/20 bg-card p-2 shadow-elegant sm:p-3">
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:flex-row">
           <div className="relative flex-1" ref={containerRef}>
@@ -229,6 +236,7 @@ export function AddressFinder() {
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
+                setAddress(e.target.value.trim());
                 setOpen(true);
                 setActiveIdx(0);
               }}
@@ -237,37 +245,41 @@ export function AddressFinder() {
               placeholder="Enter your town, ZIP, or street address"
               className="h-14 border-none bg-transparent pl-12 pr-12 text-lg focus-visible:ring-0 placeholder:text-muted-foreground/60"
               aria-label="Your address, town, or ZIP"
+              aria-expanded={open && suggestions.length > 0}
+              aria-controls="address-suggestions"
+              role="combobox"
               autoComplete="off"
             />
             {input && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 type="button"
                 onClick={clear}
                 className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted"
                 aria-label="Clear"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             )}
 
             {open && (suggestions.length > 0 || searching) && (
               <ul
                 role="listbox"
+                id="address-suggestions"
                 className="absolute left-0 right-0 top-full z-50 mt-4 max-h-[20rem] overflow-auto rounded-3xl border bg-popover p-2 shadow-elegant animate-in fade-in slide-in-from-top-2"
               >
                 {suggestions.map((s, i) => (
                   <li key={`${s.kind}-${s.value}`}>
-                    <button
+                    <Button
+                      variant="ghost"
                       type="button"
                       role="option"
                       aria-selected={i === activeIdx}
                       onMouseEnter={() => setActiveIdx(i)}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        commit(s.value);
-                      }}
+                      onClick={() => commit(s.value)}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-all",
+                        "flex h-auto w-full items-center justify-start gap-3 rounded-2xl px-4 py-3 text-left transition-all",
                         i === activeIdx ? "bg-primary text-primary-foreground shadow-md" : "hover:bg-muted",
                       )}
                     >
@@ -292,7 +304,7 @@ export function AddressFinder() {
                           {s.sub}
                         </span>
                       </span>
-                    </button>
+                    </Button>
                   </li>
                 ))}
                 {searching && (
@@ -305,16 +317,25 @@ export function AddressFinder() {
           </div>
           <Button type="submit" size="lg" className="h-14 rounded-full px-8 text-lg font-bold shadow-md">
             <Search className="mr-2 h-5 w-5" />
-            Search June races
+            Find local elections
           </Button>
         </form>
       </div>
 
+      {address && !resolved && <p role="status" className="mt-4 text-sm text-muted-foreground">Choose an address suggestion or include your Somerset County town. A street name alone cannot identify your ballot.</p>}
       {resolved && (
-        <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div aria-live="polite" className="mt-8 animate-in fade-in slide-in-from-top-4 duration-500">
+          {election === "general" && <section className="mb-6 border-l-4 border-primary pl-4">
+            <h3 className="text-xl font-semibold">November ballot · {match.display}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">Your ward and voting district determine the exact ballot. Check the county's official ballot and polling records.</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Button asChild><a href="https://www.somersetcountynj.gov/government/elected-officials/county-clerk/election-division" target="_blank" rel="noopener noreferrer">Official local ballots <ArrowUpRight className="h-4 w-4" /></a></Button>
+              <Button asChild variant="outline"><a href="https://www.somersetcountynj.gov/government/affiliated-agencies/election-board/polling-place-locator" target="_blank" rel="noopener noreferrer">Address-based polling lookup <MapPin className="h-4 w-4" /></a></Button>
+            </div>
+          </section>}
           <div className="mb-4 flex items-center justify-between px-2">
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-              {filtered.length} June primary {filtered.length === 1 ? "race" : "races"} near {match.display}
+              {isLoading ? "Loading verified races…" : `${filtered.length} verified ${election === "general" ? "November" : "June primary"} ${filtered.length === 1 ? "race" : "races"} near ${match.display}`}
             </h3>
           </div>
 
@@ -344,16 +365,14 @@ export function AddressFinder() {
                 </div>
               </Link>
             ))}
-            {filtered.length === 0 && (
+            {!isLoading && filtered.length === 0 && (
               <div className="col-span-2 rounded-3xl border border-dashed p-10 text-center">
                 <p className="text-sm font-medium text-muted-foreground">
-                  No specific local races found for this address yet.
-                  <br />
-                  This search covers the June primary archive, not the November ballot.
+                  {isError ? "Election listings could not load. The official county links remain available." : election === "general" ? "November candidates have not yet been verified here. This does not mean there are no elections for your town." : "No verified June primary listings matched this town."}
                 </p>
-                <Button asChild variant="link" className="mt-2 text-primary">
+                {election === "primary" && <Button asChild variant="link" className="mt-2 text-primary">
                   <Link to="/races">View all verified races</Link>
-                </Button>
+                </Button>}
               </div>
             )}
           </div>

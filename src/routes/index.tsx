@@ -113,7 +113,7 @@ function Home() {
         {/* June archive finder */}
         <div className="relative px-4 pt-10">
           <div className="mx-auto max-w-3xl">
-            <h2 className="mb-4 text-xl font-semibold">Explore the June primary archive</h2>
+            <h2 className="mb-4 text-xl font-semibold">Find your local election information</h2>
             <AddressFinder />
           </div>
         </div>
