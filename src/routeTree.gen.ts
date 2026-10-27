@@ -9,45 +9,30 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RacesRouteImport } from './routes/races'
-import { Route as MethodologyRouteImport } from './routes/methodology'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as RacesIndexRouteImport } from './routes/races.index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MethodologyRouteImport } from './routes/methodology'
+import { Route as RacesRouteImport } from './routes/races'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
-import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
-import { Route as AdminSourcesRouteImport } from './routes/admin.sources'
-import { Route as AdminRacesRouteImport } from './routes/admin.races'
-import { Route as AdminPositionClaimsRouteImport } from './routes/admin.position-claims'
-import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
-import { Route as AdminImportRouteImport } from './routes/admin.import'
-import { Route as AdminExtractorRouteImport } from './routes/admin.extractor'
 import { Route as AdminCandidatesRouteImport } from './routes/admin.candidates'
+import { Route as AdminExtractorRouteImport } from './routes/admin.extractor'
+import { Route as AdminImportRouteImport } from './routes/admin.import'
+import { Route as AdminIssuesRouteImport } from './routes/admin.issues'
+import { Route as AdminPositionClaimsRouteImport } from './routes/admin.position-claims'
+import { Route as AdminRacesRouteImport } from './routes/admin.races'
+import { Route as AdminSourcesRouteImport } from './routes/admin.sources'
+import { Route as CandidatesCandidateIdRouteImport } from './routes/candidates.$candidateId'
+import { Route as RacesIndexRouteImport } from './routes/races.index'
+import { Route as RacesRaceIdRouteImport } from './routes/races.$raceId'
 import { Route as RacesRaceIdIndexRouteImport } from './routes/races.$raceId.index'
-import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
 import { Route as ApiPublicCronRefreshElectionsRouteImport } from './routes/api/public/cron/refresh-elections'
+import { Route as RacesRaceIdIssuesIssueIdRouteImport } from './routes/races.$raceId.issues.$issueId'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RacesRoute = RacesRouteImport.update({
-  id: '/races',
-  path: '/races',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MethodologyRoute = MethodologyRouteImport.update({
-  id: '/methodology',
-  path: '/methodology',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -55,59 +40,29 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RacesIndexRoute = RacesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => RacesRoute,
+const MethodologyRoute = MethodologyRouteImport.update({
+  id: '/methodology',
+  path: '/methodology',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RacesRoute = RacesRouteImport.update({
+  id: '/races',
+  path: '/races',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
-  id: '/$raceId',
-  path: '/$raceId',
-  getParentRoute: () => RacesRoute,
-} as any)
-const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
-  id: '/candidates/$candidateId',
-  path: '/candidates/$candidateId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSourcesRoute = AdminSourcesRouteImport.update({
-  id: '/sources',
-  path: '/sources',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminRacesRoute = AdminRacesRouteImport.update({
-  id: '/races',
-  path: '/races',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPositionClaimsRoute = AdminPositionClaimsRouteImport.update({
-  id: '/position-claims',
-  path: '/position-claims',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminIssuesRoute = AdminIssuesRouteImport.update({
-  id: '/issues',
-  path: '/issues',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminImportRoute = AdminImportRouteImport.update({
-  id: '/import',
-  path: '/import',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminExtractorRoute = AdminExtractorRouteImport.update({
-  id: '/extractor',
-  path: '/extractor',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCandidatesRoute = AdminCandidatesRouteImport.update({
@@ -115,22 +70,67 @@ const AdminCandidatesRoute = AdminCandidatesRouteImport.update({
   path: '/candidates',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminExtractorRoute = AdminExtractorRouteImport.update({
+  id: '/extractor',
+  path: '/extractor',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminImportRoute = AdminImportRouteImport.update({
+  id: '/import',
+  path: '/import',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminIssuesRoute = AdminIssuesRouteImport.update({
+  id: '/issues',
+  path: '/issues',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPositionClaimsRoute = AdminPositionClaimsRouteImport.update({
+  id: '/position-claims',
+  path: '/position-claims',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRacesRoute = AdminRacesRouteImport.update({
+  id: '/races',
+  path: '/races',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSourcesRoute = AdminSourcesRouteImport.update({
+  id: '/sources',
+  path: '/sources',
+  getParentRoute: () => AdminRoute,
+} as any)
+const CandidatesCandidateIdRoute = CandidatesCandidateIdRouteImport.update({
+  id: '/candidates/$candidateId',
+  path: '/candidates/$candidateId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RacesIndexRoute = RacesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RacesRoute,
+} as any)
+const RacesRaceIdRoute = RacesRaceIdRouteImport.update({
+  id: '/$raceId',
+  path: '/$raceId',
+  getParentRoute: () => RacesRoute,
+} as any)
 const RacesRaceIdIndexRoute = RacesRaceIdIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => RacesRaceIdRoute,
 } as any)
-const RacesRaceIdIssuesIssueIdRoute =
-  RacesRaceIdIssuesIssueIdRouteImport.update({
-    id: '/issues/$issueId',
-    path: '/issues/$issueId',
-    getParentRoute: () => RacesRaceIdRoute,
-  } as any)
 const ApiPublicCronRefreshElectionsRoute =
   ApiPublicCronRefreshElectionsRouteImport.update({
     id: '/api/public/cron/refresh-elections',
     path: '/api/public/cron/refresh-elections',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const RacesRaceIdIssuesIssueIdRoute =
+  RacesRaceIdIssuesIssueIdRouteImport.update({
+    id: '/issues/$issueId',
+    path: '/issues/$issueId',
+    getParentRoute: () => RacesRaceIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -276,32 +276,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/races': {
-      id: '/races'
-      path: '/races'
-      fullPath: '/races'
-      preLoaderRoute: typeof RacesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/methodology': {
-      id: '/methodology'
-      path: '/methodology'
-      fullPath: '/methodology'
-      preLoaderRoute: typeof MethodologyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -311,81 +290,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/races/': {
-      id: '/races/'
-      path: '/'
-      fullPath: '/races/'
-      preLoaderRoute: typeof RacesIndexRouteImport
-      parentRoute: typeof RacesRoute
+    '/methodology': {
+      id: '/methodology'
+      path: '/methodology'
+      fullPath: '/methodology'
+      preLoaderRoute: typeof MethodologyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/races': {
+      id: '/races'
+      path: '/races'
+      fullPath: '/races'
+      preLoaderRoute: typeof RacesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/races/$raceId': {
-      id: '/races/$raceId'
-      path: '/$raceId'
-      fullPath: '/races/$raceId'
-      preLoaderRoute: typeof RacesRaceIdRouteImport
-      parentRoute: typeof RacesRoute
-    }
-    '/candidates/$candidateId': {
-      id: '/candidates/$candidateId'
-      path: '/candidates/$candidateId'
-      fullPath: '/candidates/$candidateId'
-      preLoaderRoute: typeof CandidatesCandidateIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/sources': {
-      id: '/admin/sources'
-      path: '/sources'
-      fullPath: '/admin/sources'
-      preLoaderRoute: typeof AdminSourcesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/races': {
-      id: '/admin/races'
-      path: '/races'
-      fullPath: '/admin/races'
-      preLoaderRoute: typeof AdminRacesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/position-claims': {
-      id: '/admin/position-claims'
-      path: '/position-claims'
-      fullPath: '/admin/position-claims'
-      preLoaderRoute: typeof AdminPositionClaimsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/issues': {
-      id: '/admin/issues'
-      path: '/issues'
-      fullPath: '/admin/issues'
-      preLoaderRoute: typeof AdminIssuesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/import': {
-      id: '/admin/import'
-      path: '/import'
-      fullPath: '/admin/import'
-      preLoaderRoute: typeof AdminImportRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/extractor': {
-      id: '/admin/extractor'
-      path: '/extractor'
-      fullPath: '/admin/extractor'
-      preLoaderRoute: typeof AdminExtractorRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/candidates': {
@@ -395,18 +332,74 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCandidatesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/extractor': {
+      id: '/admin/extractor'
+      path: '/extractor'
+      fullPath: '/admin/extractor'
+      preLoaderRoute: typeof AdminExtractorRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/import': {
+      id: '/admin/import'
+      path: '/import'
+      fullPath: '/admin/import'
+      preLoaderRoute: typeof AdminImportRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/issues': {
+      id: '/admin/issues'
+      path: '/issues'
+      fullPath: '/admin/issues'
+      preLoaderRoute: typeof AdminIssuesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/position-claims': {
+      id: '/admin/position-claims'
+      path: '/position-claims'
+      fullPath: '/admin/position-claims'
+      preLoaderRoute: typeof AdminPositionClaimsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/races': {
+      id: '/admin/races'
+      path: '/races'
+      fullPath: '/admin/races'
+      preLoaderRoute: typeof AdminRacesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sources': {
+      id: '/admin/sources'
+      path: '/sources'
+      fullPath: '/admin/sources'
+      preLoaderRoute: typeof AdminSourcesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/candidates/$candidateId': {
+      id: '/candidates/$candidateId'
+      path: '/candidates/$candidateId'
+      fullPath: '/candidates/$candidateId'
+      preLoaderRoute: typeof CandidatesCandidateIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/races/': {
+      id: '/races/'
+      path: '/'
+      fullPath: '/races/'
+      preLoaderRoute: typeof RacesIndexRouteImport
+      parentRoute: typeof RacesRoute
+    }
+    '/races/$raceId': {
+      id: '/races/$raceId'
+      path: '/$raceId'
+      fullPath: '/races/$raceId'
+      preLoaderRoute: typeof RacesRaceIdRouteImport
+      parentRoute: typeof RacesRoute
+    }
     '/races/$raceId/': {
       id: '/races/$raceId/'
       path: '/'
       fullPath: '/races/$raceId/'
       preLoaderRoute: typeof RacesRaceIdIndexRouteImport
-      parentRoute: typeof RacesRaceIdRoute
-    }
-    '/races/$raceId/issues/$issueId': {
-      id: '/races/$raceId/issues/$issueId'
-      path: '/issues/$issueId'
-      fullPath: '/races/$raceId/issues/$issueId'
-      preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
       parentRoute: typeof RacesRaceIdRoute
     }
     '/api/public/cron/refresh-elections': {
@@ -415,6 +408,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/public/cron/refresh-elections'
       preLoaderRoute: typeof ApiPublicCronRefreshElectionsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/races/$raceId/issues/$issueId': {
+      id: '/races/$raceId/issues/$issueId'
+      path: '/issues/$issueId'
+      fullPath: '/races/$raceId/issues/$issueId'
+      preLoaderRoute: typeof RacesRaceIdIssuesIssueIdRouteImport
+      parentRoute: typeof RacesRaceIdRoute
     }
   }
 }
