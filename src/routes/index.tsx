@@ -20,14 +20,14 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BallotBrief — Know what candidates stand for, with receipts" },
+      { title: "November 2026 Somerset Election Guide — BallotBrief" },
       {
         name: "description",
         content:
-          "Verified Somerset County primary candidates and source-backed positions for June 2, 2026.",
+          "Official voting resources for the November 3, 2026 general election in Somerset County, New Jersey, plus the June primary archive.",
       },
-      { property: "og:title", content: "BallotBrief — Somerset County 2026 Primary" },
-      { property: "og:description", content: "Find verified Somerset County primary candidates and source-backed positions." },
+      { property: "og:title", content: "BallotBrief — November 2026 Somerset Election" },
+      { property: "og:description", content: "November 3 general election voting resources and a clearly separated June primary archive." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -79,23 +79,36 @@ function Home() {
           <div className="relative container mx-auto max-w-5xl px-4 text-center">
             <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-md">
               <CheckCircle2 className="h-3 w-3 text-success" />
-              Somerset County · June 2, 2026
+              Somerset County · November 3, 2026
             </span>
             <h1 className="mt-8 font-display text-5xl font-bold leading-[1.05] tracking-tight text-balance sm:text-6xl lg:text-8xl">
-              Know your primary
+              November election
               <br />
-              <span className="italic text-white/60">before you vote.</span>
+              <span className="italic text-primary-foreground/60">Somerset County.</span>
             </h1>
             <p className="mx-auto mt-8 max-w-2xl text-lg text-white/70 leading-relaxed sm:text-xl">
-              See verified Democratic and Republican candidate filings, then
-              compare only the positions tied to an original source.
+              Find official voting information for the general election.
+              June primary candidates are archived below—not presented as November nominees.
             </p>
           </div>
         </section>
 
-        {/* INTEGRATED FINDER — Overlapping the hero */}
-        <div className="relative -mt-32 px-4">
+        <section className="relative -mt-28 border-b bg-background py-10">
+          <div className="container mx-auto max-w-6xl px-4">
+            <h2 className="text-2xl font-semibold">November voting essentials</h2>
+            <div className="mt-6 grid gap-6 sm:grid-cols-3">
+              <div className="border-l-4 border-primary pl-4"><CalendarDays className="h-5 w-5 text-primary" /><h3 className="mt-3 font-semibold">Election Day</h3><p className="mt-2 text-sm">Tuesday, November 3, 2026</p><Button asChild variant="link" className="mt-2 h-auto px-0"><a href="https://www.nj.gov/state/elections/vote.shtml" target="_blank" rel="noopener noreferrer">Official voter portal <ArrowUpRight className="h-4 w-4" /></a></Button></div>
+              <div className="border-l-4 border-success pl-4"><MapPin className="h-5 w-5 text-success" /><h3 className="mt-3 font-semibold">In-person early voting</h3><p className="mt-2 text-sm">October 24–November 1</p><p className="mt-1 text-sm text-muted-foreground">Mon–Sat: 10 a.m.–8 p.m.<br />Sunday: 10 a.m.–6 p.m.</p><Button asChild variant="link" className="mt-2 h-auto px-0"><a href="https://www.nj.gov/state/elections/vote-early-voting.shtml" target="_blank" rel="noopener noreferrer">Find early voting locations <ArrowUpRight className="h-4 w-4" /></a></Button></div>
+              <div className="border-l-4 border-warning pl-4"><FileSearch className="h-5 w-5 text-warning" /><h3 className="mt-3 font-semibold">Vote by mail</h3><p className="mt-2 text-sm">Apply by mail by October 27.</p><p className="mt-1 text-sm text-muted-foreground">In-person application deadline: November 2 at 3 p.m.</p><Button asChild variant="link" className="mt-2 h-auto px-0"><a href="https://www.nj.gov/state/elections/vote-3-ways-to-vote.shtml" target="_blank" rel="noopener noreferrer">Official ballot instructions <ArrowUpRight className="h-4 w-4" /></a></Button></div>
+            </div>
+            <p className="mt-6 border-t pt-4 text-sm text-muted-foreground">Sources: New Jersey Division of Elections. Checked October 27, 2026. November race and candidate records are not yet verified in BallotBrief; use official election materials for your general-election ballot.</p>
+          </div>
+        </section>
+
+        {/* June archive finder */}
+        <div className="relative px-4 pt-10">
           <div className="mx-auto max-w-3xl">
+            <h2 className="mb-4 text-xl font-semibold">Explore the June primary archive</h2>
             <AddressFinder />
           </div>
         </div>
@@ -128,10 +141,10 @@ function Home() {
             <div className="mb-12 flex items-end justify-between gap-6">
               <div>
                 <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-primary">
-                   June 2 primary
+                   June 2, 2026 · Past election
                 </p>
                 <h2 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl">
-                   Verified races
+                   Primary race archive
                 </h2>
               </div>
               <Button asChild variant="link" className="hidden sm:flex group text-primary font-bold">
@@ -201,7 +214,7 @@ function Home() {
               Ready to read the receipts?
             </h2>
             <p className="mt-6 text-white/70 text-lg">
-               Browse every verified race in the Somerset County primary.
+               Browse verified June primary filings. These are not November ballot listings.
             </p>
             <Button asChild size="lg" className="mt-10 bg-white text-primary hover:bg-white/90 h-14 px-8 rounded-xl font-bold text-lg shadow-elegant">
               <Link to="/races">

@@ -305,7 +305,7 @@ export function AddressFinder() {
           </div>
           <Button type="submit" size="lg" className="h-14 rounded-full px-8 text-lg font-bold shadow-md">
             <Search className="mr-2 h-5 w-5" />
-            Find Ballot
+            Search June races
           </Button>
         </form>
       </div>
@@ -314,7 +314,7 @@ export function AddressFinder() {
         <div className="mt-8 animate-in fade-in slide-in-from-top-4 duration-500">
           <div className="mb-4 flex items-center justify-between px-2">
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
-              {filtered.length} {filtered.length === 1 ? "Race" : "Races"} for {match.display}
+              {filtered.length} June primary {filtered.length === 1 ? "race" : "races"} near {match.display}
             </h3>
           </div>
 
@@ -349,7 +349,7 @@ export function AddressFinder() {
                 <p className="text-sm font-medium text-muted-foreground">
                   No specific local races found for this address yet.
                   <br />
-                  Only verified Somerset County primary races are shown.
+                  This search covers the June primary archive, not the November ballot.
                 </p>
                 <Button asChild variant="link" className="mt-2 text-primary">
                   <Link to="/races">View all verified races</Link>
