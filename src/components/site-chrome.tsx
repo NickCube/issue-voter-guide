@@ -15,7 +15,7 @@ export function SiteHeader() {
               BallotBrief
             </span>
             <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
-              Somerset 2026 · Verified
+              Somerset · Election guide
             </span>
           </div>
         </Link>
@@ -24,7 +24,7 @@ export function SiteHeader() {
             to="/races"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
-            All Races
+            June archive
           </Link>
           <Link
             to="/methodology"
@@ -35,10 +35,10 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-3">
           <Link
-            to="/races"
+            to="/"
             className="rounded-full bg-primary/5 px-4 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
           >
-            Find my ballot
+            November voting
           </Link>
         </div>
       </div>
@@ -95,8 +95,8 @@ export function SiteFooter() {
               BallotBrief
             </Link>
             <p className="mt-4 max-w-xs text-sm text-muted-foreground leading-relaxed">
-               Verified Somerset County primary filings with plain-English,
-               source-backed candidate positions.
+               Official November voting resources and archived Somerset County
+               primary filings with source-backed candidate positions.
             </p>
           </div>
           <div>
