@@ -60,8 +60,9 @@ function RacesPage() {
     <section className="border-b bg-primary text-primary-foreground">
       <div className="container mx-auto max-w-6xl px-4 py-14 sm:py-18">
         <div className="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase"><CheckCircle2 className="h-4 w-4 text-success" /> Verified candidate filings</div>
-        <h1 className="mt-4 text-4xl font-semibold sm:text-6xl">Somerset County primary</h1>
-        <p className="mt-4 max-w-2xl text-primary-foreground/75">Democratic and Republican contests for June 2, 2026, based on the Somerset County Clerk candidate roster.</p>
+         <h1 className="mt-4 text-4xl font-semibold sm:text-6xl">June primary archive</h1>
+         <p className="mt-4 max-w-2xl text-primary-foreground/75">These June 2, 2026 filings are not the November general-election ballot. November candidates have not yet been verified here.</p>
+         <Button asChild variant="secondary" className="mt-5"><Link to="/">November election information</Link></Button>
       </div>
     </section>
     <div className="container mx-auto max-w-6xl px-4 py-10">
