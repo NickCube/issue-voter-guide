@@ -27,12 +27,21 @@ const ALIASES: Record<string, string[]> = {
   martinsville: ["Bridgewater"],
   "belle mead": ["Montgomery"],
   skillman: ["Montgomery"],
+  "liberty corner": ["Bernards"],
+  lyons: ["Bernards"],
+  flagtown: ["Hillsborough"],
+  blawenburg: ["Montgomery"],
+  "franklin park": ["Franklin"],
   gladstone: ["Peapack-Gladstone"],
   pluckemin: ["Bedminster"],
 };
 
 function normalize(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function containsName(text: string, name: string) {
+  return ` ${text} `.includes(` ${normalize(name)} `);
 }
 
 export function matchAddressToTowns(input: string): {
@@ -58,7 +67,7 @@ export function matchAddressToTowns(input: string): {
 
   if (towns.size === 0) {
     for (const [alias, matches] of Object.entries(ALIASES)) {
-      if (text.includes(alias)) {
+      if (containsName(text, alias)) {
         matches.forEach((town) => towns.add(town));
         display = matches[0];
         detectedFrom = "town";
@@ -66,17 +75,20 @@ export function matchAddressToTowns(input: string): {
     }
   }
 
-  for (const town of SOMERSET_TOWNS) {
-    if (text.includes(normalize(town))) {
+  const matchedTowns = SOMERSET_TOWNS.filter((town) => containsName(text, town));
+  for (const town of matchedTowns) {
+    // Do not treat North/South Plainfield or Bound Brook as a second, shorter municipality.
+    if (!matchedTowns.some((other) => other !== town && containsName(normalize(other), town))) {
+      if (detectedFrom === "zip") towns.clear();
       towns.add(town);
-      display ??= town;
-      if (detectedFrom === "none") detectedFrom = "town";
+      display = town;
+      detectedFrom = "town";
     }
   }
 
   return {
     towns: [...towns],
-    countyMatch: towns.size > 0 || /\bnj\b|new jersey/.test(text),
+    countyMatch: towns.size > 0,
     detectedFrom,
     display,
   };
@@ -90,7 +102,14 @@ export function raceMatchesAddress(
   const value = normalize(location);
   if (
     match.countyMatch &&
-    (value.includes("somerset county") || value.includes("new jersey") || value.includes("district"))
+    (value === "somerset county" || value === "new jersey" || value === "statewide")
   ) return true;
-  return match.towns.some((town) => value.includes(normalize(town)));
+  const locationTowns = matchAddressToTowns(location).towns;
+  return match.towns.some((town) => locationTowns.includes(town));
+}
+
+export function matchingElectionRaces<T extends { location?: string | null; is_verified?: boolean | null; election_type?: string | null; election_date?: string | null }>(races: T[], address: string, election: "general" | "primary") {
+  const match = matchAddressToTowns(address);
+  const date = election === "general" ? "2026-11-03" : "2026-06-02";
+  return races.filter((race) => race.is_verified === true && race.election_type === election && race.election_date === date && raceMatchesAddress(race.location, match));
 }
