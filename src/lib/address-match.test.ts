@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { matchAddressToTowns, matchingElectionRaces, raceMatchesAddress } from "./address-match";
 
 describe("local election search", () => {
+  test("Bridgewater ZIP resolves to Bridgewater", () => {
+    assert.deepEqual(matchAddressToTowns("08807").towns, ["Bridgewater"]);
+  });
   test("South Bound Brook does not include Bound Brook", () => {
     const match = matchAddressToTowns("South Bound Brook, NJ");
     assert.deepEqual(match.towns, ["South Bound Brook"]);

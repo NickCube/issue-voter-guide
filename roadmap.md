@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Make local search useful for November with official ballot links and clear missing-data states
-- [ ] Test town matching, election separation, and live search interactions
+- [x] Make local search useful for November with official ballot links and clear missing-data states
+- [x] Test town matching, election separation, and live search interactions
 
 - [x] Add official November election resources and distinguish the June archive
 - [x] Check official source references and live public page rendering

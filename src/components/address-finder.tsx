@@ -329,7 +329,7 @@ export function AddressFinder() {
             <h3 className="text-xl font-semibold">November ballot · {match.display}</h3>
             <p className="mt-2 text-sm text-muted-foreground">Your ward and voting district determine the exact ballot. Check the county's official ballot and polling records.</p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Button asChild><a href="https://www.somersetcountynj.gov/government/elected-officials/county-clerk/election-division" target="_blank" rel="noopener noreferrer">Official local ballots <ArrowUpRight className="h-4 w-4" /></a></Button>
+              <Button asChild><a href="https://www.somersetcountynj.gov/home/showpublisheddocument/68125/639271590157170000" target="_blank" rel="noopener noreferrer">November sample ballots (PDF) <ArrowUpRight className="h-4 w-4" /></a></Button>
               <Button asChild variant="outline"><a href="https://www.somersetcountynj.gov/government/affiliated-agencies/election-board/polling-place-locator" target="_blank" rel="noopener noreferrer">Address-based polling lookup <MapPin className="h-4 w-4" /></a></Button>
             </div>
           </section>}
